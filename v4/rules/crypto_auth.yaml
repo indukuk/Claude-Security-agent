@@ -36,7 +36,7 @@ rules:
       category: authentication-bypass
       confidence: HIGH
 
-  - id: custom-rsa-verification
+  - id: custom-rsa-modular-exponentiation
     patterns:
       - pattern: |
           pow($BASE, $EXP, $MOD)
@@ -52,7 +52,44 @@ rules:
     metadata:
       cwe: CWE-327
       category: cryptographic-vulnerability
-      confidence: MEDIUM
+      confidence: HIGH
+
+  - id: custom-rsa-int-from-bytes
+    patterns:
+      - pattern: |
+          int.from_bytes($SIG, ...)
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            pow(...)
+            ...
+    message: |
+      Raw RSA signature verification using int.from_bytes + pow().
+      This is a custom cryptographic implementation that may be
+      vulnerable to padding oracle or timing attacks. Use the
+      cryptography library or PyJWT instead.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-327
+      category: cryptographic-vulnerability
+      confidence: HIGH
+
+  - id: custom-pkcs1-verification
+    patterns:
+      - pattern: |
+          $BYTES.fromhex('3031300d060960864801650304020105000420')
+    message: |
+      Hardcoded PKCS#1 v1.5 SHA-256 DigestInfo prefix indicates manual
+      RSA signature verification. This bypasses constant-time comparison
+      and proper padding validation provided by established libraries.
+      Use cryptography.hazmat.primitives.asymmetric.padding.PKCS1v15 or PyJWT.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-327
+      category: cryptographic-vulnerability
+      confidence: HIGH
 
   - id: custom-signature-verify
     pattern-either:

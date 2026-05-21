@@ -138,6 +138,28 @@ MUST_GUARD_SPECS = [
         description_template="Handler {handler} decodes a JWT using base64 without first verifying its signature, allowing token forgery.",
         cwe="CWE-345",
     ),
+    MustGuard(
+        id="custom-crypto-instead-of-library",
+        sink_pattern=r"pow\(.*,.*,.*\)|int\.from_bytes\(.*signature",
+        guard_pattern=r"(from cryptography|import cryptography|from jose|import jwt|PyJWT)",
+        guard_type="established_crypto_library",
+        scope="same_handler",
+        severity="MEDIUM",
+        title_template="Custom RSA signature verification instead of established library in {handler}",
+        description_template="Handler {handler} implements manual RSA signature verification using raw modular exponentiation instead of using an established cryptographic library (cryptography, PyJWT, python-jose).",
+        cwe="CWE-327",
+    ),
+    MustGuard(
+        id="no-secret-rotation",
+        sink_pattern=r"(SecretString|secret_arn|DB_PASSWORD|DATABASE_URL|connection_string)",
+        guard_pattern=r"(rotation_schedule|rotate_secret|rotation_lambda|RotationSchedule)",
+        guard_type="secret_rotation",
+        scope="same_handler",
+        severity="MEDIUM",
+        title_template="No rotation policy for secrets/credentials used by {handler}",
+        description_template="Handler {handler} uses secrets or database credentials without any rotation mechanism configured in infrastructure or code.",
+        cwe="CWE-798",
+    ),
 ]
 
 

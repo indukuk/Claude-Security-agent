@@ -549,6 +549,41 @@ def _collect_chain_inputs(semgrep_findings, evidence_walks, absence_findings,
             except (OSError, UnicodeDecodeError):
                 pass
 
+    # Secret rotation check
+    if infra_dir.exists():
+        for stack_file in infra_dir.glob("*.py"):
+            try:
+                content = stack_file.read_text()
+                # Check for secrets without rotation
+                if ("secret" in content.lower() or "credentials" in content.lower()):
+                    if "rotation" not in content.lower():
+                        all_findings.append({
+                            "id": "infra-no-rotation", "title": "No rotation policy for database credentials and API keys",
+                            "severity": "MEDIUM", "category": "missing_secret_rotation", "file_path": str(stack_file),
+                        })
+                        break
+                    elif "rotation not configured" in content.lower():
+                        all_findings.append({
+                            "id": "infra-rotation-suppressed", "title": "Secret rotation warning explicitly suppressed (CDK nag)",
+                            "severity": "MEDIUM", "category": "missing_secret_rotation", "file_path": str(stack_file),
+                        })
+                        break
+            except (OSError, UnicodeDecodeError):
+                pass
+
+    # Custom crypto detection (for chain composition)
+    for py_file in (repo / "src").rglob("*.py"):
+        try:
+            content = py_file.read_text()
+            if "pow(" in content and "int.from_bytes" in content and ("signature" in content or "RSA" in content.lower()):
+                all_findings.append({
+                    "id": "custom-crypto", "title": "Custom RSA signature verification instead of established library",
+                    "severity": "MEDIUM", "category": "custom_crypto", "file_path": str(py_file),
+                })
+                break
+        except (OSError, UnicodeDecodeError):
+            pass
+
     return all_findings
 
 

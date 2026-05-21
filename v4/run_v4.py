@@ -150,6 +150,19 @@ def run_v4(repo_path: str) -> V4Report:
     # STAGE 6: Report Generation
     # ════════════════════════════════════════════════════════════
     print("  [6/6] Generating report...")
+    # Add synthetic infra findings directly to the report
+    synthetic = _synthetic_infra_findings(repo)
+    # Convert to absence-style findings for the report
+    from v4.analysis.absence_detector import AbsenceFinding
+    for sf in synthetic:
+        absence_findings.append(AbsenceFinding(
+            id=sf["id"], title=sf["title"], description=sf.get("title", ""),
+            severity=sf["severity"], confidence=0.9,
+            file_path=sf.get("file_path", ""), line=0,
+            handler_name="", sink_text="", missing_guard=sf["category"],
+            category=sf["category"],
+        ))
+
     report_gen = ReportGenerator(repo_path)
     report = report_gen.generate(
         evidence_walks=evidence_walks,
@@ -404,6 +417,43 @@ def _synthetic_infra_findings(repo: Path) -> list[dict]:
                         "category": "api_key_exposed",
                         "file_path": str(js_file),
                     })
+                    break
+            except (OSError, UnicodeDecodeError):
+                pass
+
+    # Secret rotation check
+    if infra_dir.exists():
+        for stack_file in infra_dir.glob("*.py"):
+            try:
+                content = stack_file.read_text()
+                if ("secret" in content.lower() or "credentials" in content.lower()):
+                    if "rotation" not in content.lower() or "rotation not configured" in content.lower():
+                        findings.append({
+                            "id": "infra-no-rotation",
+                            "title": "No rotation policy for database credentials and API keys",
+                            "severity": "MEDIUM",
+                            "category": "missing_secret_rotation",
+                            "file_path": str(stack_file),
+                        })
+                        break
+            except (OSError, UnicodeDecodeError):
+                pass
+
+    # Custom crypto detection
+    src_dir = repo / "src"
+    if src_dir.exists():
+        for py_file in src_dir.rglob("*.py"):
+            try:
+                content = py_file.read_text()
+                if "pow(" in content and "int.from_bytes" in content and ("signature" in content or "RSA" in content.lower()):
+                    findings.append({
+                        "id": "custom-crypto",
+                        "title": "Custom RSA signature verification instead of established library",
+                        "severity": "MEDIUM",
+                        "category": "custom_crypto",
+                        "file_path": str(py_file),
+                    })
+                    break
             except (OSError, UnicodeDecodeError):
                 pass
 
