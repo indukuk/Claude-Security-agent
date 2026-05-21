@@ -1,0 +1,32 @@
+[project]
+name = "security-agent"
+version = "0.1.0"
+description = "Graph-based security analysis with LLM reasoning"
+requires-python = ">=3.9"
+dependencies = [
+    "networkx>=2.6",
+    "boto3>=1.26.0",
+]
+
+[project.optional-dependencies]
+tree-sitter = [
+    "tree-sitter>=0.23.0",
+    "tree-sitter-python>=0.23.0",
+]
+z3 = [
+    "z3-solver>=4.12.0",
+]
+terraform = [
+    "python-hcl2>=4.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+security-scan = "src.main:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"

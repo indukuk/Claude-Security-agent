@@ -1,0 +1,3655 @@
+{
+  "python_taint": [
+    {
+      "check_id": "v2.presigned-url-user-filename",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 113,
+        "col": 25,
+        "offset": 4059
+      },
+      "end": {
+        "line": 117,
+        "col": 10,
+        "offset": 4217
+      },
+      "extra": {
+        "message": "S3 presigned URL generated with filename from request body without sanitization via os.path.basename().\n",
+        "metadata": {
+          "cwe": "CWE-22",
+          "category": "path-traversal",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 132,
+        "col": 16,
+        "offset": 4678
+      },
+      "end": {
+        "line": 132,
+        "col": 74,
+        "offset": 4736
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 241,
+        "col": 5,
+        "offset": 8866
+      },
+      "end": {
+        "line": 241,
+        "col": 51,
+        "offset": 8912
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 376,
+        "col": 20,
+        "offset": 14654
+      },
+      "end": {
+        "line": 376,
+        "col": 62,
+        "offset": 14696
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 382,
+        "col": 20,
+        "offset": 14933
+      },
+      "end": {
+        "line": 382,
+        "col": 61,
+        "offset": 14974
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 151,
+        "col": 20,
+        "offset": 5422
+      },
+      "end": {
+        "line": 151,
+        "col": 62,
+        "offset": 5464
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cross-tenant-customer-id-from-body",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 157,
+        "col": 20,
+        "offset": 5706
+      },
+      "end": {
+        "line": 157,
+        "col": 61,
+        "offset": 5747
+      },
+      "extra": {
+        "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-tenant-access",
+          "confidence": "HIGH"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.presigned-url-user-filename",
+      "path": "/Users/indukuk/compliance/src/auth/data_handler.py",
+      "start": {
+        "line": 174,
+        "col": 26,
+        "offset": 7899
+      },
+      "end": {
+        "line": 174,
+        "col": 132,
+        "offset": 8005
+      },
+      "extra": {
+        "message": "S3 presigned URL generated with filename from request body without sanitization via os.path.basename().\n",
+        "metadata": {
+          "cwe": "CWE-22",
+          "category": "path-traversal",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cognito-create-user-from-body",
+      "path": "/Users/indukuk/compliance/src/auth/tenant_management.py",
+      "start": {
+        "line": 148,
+        "col": 16,
+        "offset": 5220
+      },
+      "end": {
+        "line": 153,
+        "col": 6,
+        "offset": 5418
+      },
+      "extra": {
+        "message": "Cognito admin_create_user called with attributes from request body. Verify role/tenant assignment is validated.\n",
+        "metadata": {
+          "cwe": "CWE-284",
+          "category": "privilege-escalation",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.cognito-create-user-from-body",
+      "path": "/Users/indukuk/compliance/src/auth/user_management.py",
+      "start": {
+        "line": 124,
+        "col": 12,
+        "offset": 4532
+      },
+      "end": {
+        "line": 132,
+        "col": 6,
+        "offset": 4897
+      },
+      "extra": {
+        "message": "Cognito admin_create_user called with attributes from request body. Verify role/tenant assignment is validated.\n",
+        "metadata": {
+          "cwe": "CWE-284",
+          "category": "privilege-escalation",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    }
+  ],
+  "python_gaps": [
+    {
+      "check_id": "v2.langgraph-routing-from-state",
+      "path": "/Users/indukuk/compliance/src/agent/graph.py",
+      "start": {
+        "line": 18,
+        "col": 1,
+        "offset": 685
+      },
+      "end": {
+        "line": 34,
+        "col": 30,
+        "offset": 1205
+      },
+      "extra": {
+        "message": "LangGraph routing function determines next node from state (which includes user messages). If intent classification is LLM-driven, prompt injection may influence routing to unauthorized nodes. Verify check_permission() is called before tool-executing nodes.\n",
+        "metadata": {
+          "cwe": "CWE-285",
+          "category": "routing-without-auth",
+          "confidence": "LOW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.langgraph-routing-from-state",
+      "path": "/Users/indukuk/compliance/src/agent/graph.py",
+      "start": {
+        "line": 71,
+        "col": 1,
+        "offset": 2269
+      },
+      "end": {
+        "line": 76,
+        "col": 24,
+        "offset": 2494
+      },
+      "extra": {
+        "message": "LangGraph routing function determines next node from state (which includes user messages). If intent classification is LLM-driven, prompt injection may influence routing to unauthorized nodes. Verify check_permission() is called before tool-executing nodes.\n",
+        "metadata": {
+          "cwe": "CWE-285",
+          "category": "routing-without-auth",
+          "confidence": "LOW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.error-details-in-response",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 120,
+        "col": 9,
+        "offset": 4337
+      },
+      "end": {
+        "line": 120,
+        "col": 54,
+        "offset": 4382
+      },
+      "extra": {
+        "message": "Exception string included in HTTP response body. May expose internal paths or sensitive state.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.error-details-in-response",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 149,
+        "col": 9,
+        "offset": 5595
+      },
+      "end": {
+        "line": 149,
+        "col": 54,
+        "offset": 5640
+      },
+      "extra": {
+        "message": "Exception string included in HTTP response body. May expose internal paths or sensitive state.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.session-id-from-body-to-db",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 191,
+        "col": 15,
+        "offset": 7073
+      },
+      "end": {
+        "line": 191,
+        "col": 40,
+        "offset": 7098
+      },
+      "extra": {
+        "message": "session_id from request body used as DynamoDB key. If session IDs are predictable or if users can access other users' sessions by guessing/reusing IDs, cross-session data access is possible.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-session-access",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.traceback-in-handler",
+      "path": "/Users/indukuk/compliance/src/agent/handler.py",
+      "start": {
+        "line": 233,
+        "col": 9,
+        "offset": 8650
+      },
+      "end": {
+        "line": 233,
+        "col": 30,
+        "offset": 8671
+      },
+      "extra": {
+        "message": "traceback.print_exc() in Lambda handler. Full stack traces in CloudWatch may reveal internal code structure and paths.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.session-id-from-body-to-db",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 121,
+        "col": 15,
+        "offset": 4490
+      },
+      "end": {
+        "line": 121,
+        "col": 40,
+        "offset": 4515
+      },
+      "extra": {
+        "message": "session_id from request body used as DynamoDB key. If session IDs are predictable or if users can access other users' sessions by guessing/reusing IDs, cross-session data access is possible.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-session-access",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.session-id-from-body-to-db",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 175,
+        "col": 15,
+        "offset": 6413
+      },
+      "end": {
+        "line": 175,
+        "col": 36,
+        "offset": 6434
+      },
+      "extra": {
+        "message": "session_id from request body used as DynamoDB key. If session IDs are predictable or if users can access other users' sessions by guessing/reusing IDs, cross-session data access is possible.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-session-access",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.session-id-from-body-to-db",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 249,
+        "col": 15,
+        "offset": 9637
+      },
+      "end": {
+        "line": 249,
+        "col": 40,
+        "offset": 9662
+      },
+      "extra": {
+        "message": "session_id from request body used as DynamoDB key. If session IDs are predictable or if users can access other users' sessions by guessing/reusing IDs, cross-session data access is possible.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-session-access",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.traceback-in-handler",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 388,
+        "col": 9,
+        "offset": 15133
+      },
+      "end": {
+        "line": 388,
+        "col": 30,
+        "offset": 15154
+      },
+      "extra": {
+        "message": "traceback.print_exc() in Lambda handler. Full stack traces in CloudWatch may reveal internal code structure and paths.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.error-details-in-response",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+      "start": {
+        "line": 389,
+        "col": 9,
+        "offset": 15163
+      },
+      "end": {
+        "line": 389,
+        "col": 54,
+        "offset": 15208
+      },
+      "extra": {
+        "message": "Exception string included in HTTP response body. May expose internal paths or sensitive state.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.error-details-in-response",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 42,
+        "col": 9,
+        "offset": 1446
+      },
+      "end": {
+        "line": 42,
+        "col": 54,
+        "offset": 1491
+      },
+      "extra": {
+        "message": "Exception string included in HTTP response body. May expose internal paths or sensitive state.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.session-id-from-body-to-db",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 118,
+        "col": 15,
+        "offset": 4269
+      },
+      "end": {
+        "line": 118,
+        "col": 36,
+        "offset": 4290
+      },
+      "extra": {
+        "message": "session_id from request body used as DynamoDB key. If session IDs are predictable or if users can access other users' sessions by guessing/reusing IDs, cross-session data access is possible.\n",
+        "metadata": {
+          "cwe": "CWE-639",
+          "category": "cross-session-access",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.traceback-in-handler",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 170,
+        "col": 9,
+        "offset": 6291
+      },
+      "end": {
+        "line": 170,
+        "col": 30,
+        "offset": 6312
+      },
+      "extra": {
+        "message": "traceback.print_exc() in Lambda handler. Full stack traces in CloudWatch may reveal internal code structure and paths.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.error-details-in-response",
+      "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+      "start": {
+        "line": 171,
+        "col": 9,
+        "offset": 6321
+      },
+      "end": {
+        "line": 171,
+        "col": 54,
+        "offset": 6366
+      },
+      "extra": {
+        "message": "Exception string included in HTTP response body. May expose internal paths or sensitive state.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.langgraph-routing-from-state",
+      "path": "/Users/indukuk/compliance/src/agent/nodes/formatter.py",
+      "start": {
+        "line": 14,
+        "col": 1,
+        "offset": 303
+      },
+      "end": {
+        "line": 35,
+        "col": 18,
+        "offset": 1122
+      },
+      "extra": {
+        "message": "LangGraph routing function determines next node from state (which includes user messages). If intent classification is LLM-driven, prompt injection may influence routing to unauthorized nodes. Verify check_permission() is called before tool-executing nodes.\n",
+        "metadata": {
+          "cwe": "CWE-285",
+          "category": "routing-without-auth",
+          "confidence": "LOW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.langgraph-routing-from-state",
+      "path": "/Users/indukuk/compliance/src/agent/nodes/query.py",
+      "start": {
+        "line": 63,
+        "col": 1,
+        "offset": 2480
+      },
+      "end": {
+        "line": 81,
+        "col": 18,
+        "offset": 3193
+      },
+      "extra": {
+        "message": "LangGraph routing function determines next node from state (which includes user messages). If intent classification is LLM-driven, prompt injection may influence routing to unauthorized nodes. Verify check_permission() is called before tool-executing nodes.\n",
+        "metadata": {
+          "cwe": "CWE-285",
+          "category": "routing-without-auth",
+          "confidence": "LOW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.evaluation-without-permission-check",
+      "path": "/Users/indukuk/compliance/src/agent/nodes/sandbox.py",
+      "start": {
+        "line": 12,
+        "col": 1,
+        "offset": 250
+      },
+      "end": {
+        "line": 111,
+        "col": 17,
+        "offset": 4278
+      },
+      "extra": {
+        "message": "Evaluation or storage function processes state without calling check_permission(). If the router dispatches here based on user intent (LLM-classified), RBAC may be bypassed.\n",
+        "metadata": {
+          "cwe": "CWE-285",
+          "category": "missing-authorization",
+          "confidence": "LOW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.generated-code-to-execution",
+      "path": "/Users/indukuk/compliance/src/agent/nodes/sandbox.py",
+      "start": {
+        "line": 63,
+        "col": 18,
+        "offset": 2205
+      },
+      "end": {
+        "line": 68,
+        "col": 10,
+        "offset": 2423
+      },
+      "extra": {
+        "message": "LLM-generated code sent to code execution service. If user messages influence the generated code (via prompt injection), attacker-controlled code may execute. Verify generated code is sandboxed and cannot access credentials or sensitive data.\n",
+        "metadata": {
+          "cwe": "CWE-94",
+          "category": "code-execution",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dynamodb-scan-multi-tenant",
+      "path": "/Users/indukuk/compliance/src/auth/tenant_management.py",
+      "start": {
+        "line": 75,
+        "col": 14,
+        "offset": 2406
+      },
+      "end": {
+        "line": 77,
+        "col": 6,
+        "offset": 2513
+      },
+      "extra": {
+        "message": "DynamoDB scan() reads ALL items in the table regardless of partition. In a multi-tenant shared table, scan exposes all tenants' data to the calling Lambda. Use query() with tenant-scoped KeyConditionExpression.\n",
+        "metadata": {
+          "cwe": "CWE-200",
+          "category": "data-exposure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dynamodb-scan-multi-tenant",
+      "path": "/Users/indukuk/compliance/src/auth/tenant_management.py",
+      "start": {
+        "line": 195,
+        "col": 13,
+        "offset": 6771
+      },
+      "end": {
+        "line": 199,
+        "col": 6,
+        "offset": 6926
+      },
+      "extra": {
+        "message": "DynamoDB scan() reads ALL items in the table regardless of partition. In a multi-tenant shared table, scan exposes all tenants' data to the calling Lambda. Use query() with tenant-scoped KeyConditionExpression.\n",
+        "metadata": {
+          "cwe": "CWE-200",
+          "category": "data-exposure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dynamodb-scan-multi-tenant",
+      "path": "/Users/indukuk/compliance/src/auth/tenant_management.py",
+      "start": {
+        "line": 237,
+        "col": 18,
+        "offset": 8261
+      },
+      "end": {
+        "line": 242,
+        "col": 10,
+        "offset": 8505
+      },
+      "extra": {
+        "message": "DynamoDB scan() reads ALL items in the table regardless of partition. In a multi-tenant shared table, scan exposes all tenants' data to the calling Lambda. Use query() with tenant-scoped KeyConditionExpression.\n",
+        "metadata": {
+          "cwe": "CWE-200",
+          "category": "data-exposure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dynamodb-scan-multi-tenant",
+      "path": "/Users/indukuk/compliance/src/auth/user_management.py",
+      "start": {
+        "line": 100,
+        "col": 14,
+        "offset": 3553
+      },
+      "end": {
+        "line": 103,
+        "col": 6,
+        "offset": 3686
+      },
+      "extra": {
+        "message": "DynamoDB scan() reads ALL items in the table regardless of partition. In a multi-tenant shared table, scan exposes all tenants' data to the calling Lambda. Use query() with tenant-scoped KeyConditionExpression.\n",
+        "metadata": {
+          "cwe": "CWE-200",
+          "category": "data-exposure",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.traceback-in-handler",
+      "path": "/Users/indukuk/compliance/src/observer/handler.py",
+      "start": {
+        "line": 375,
+        "col": 9,
+        "offset": 15527
+      },
+      "end": {
+        "line": 375,
+        "col": 30,
+        "offset": 15548
+      },
+      "extra": {
+        "message": "traceback.print_exc() in Lambda handler. Full stack traces in CloudWatch may reveal internal code structure and paths.\n",
+        "metadata": {
+          "cwe": "CWE-209",
+          "category": "info-disclosure",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    }
+  ],
+  "frontend": [
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/access-reviews.js",
+      "start": {
+        "line": 17,
+        "col": 5,
+        "offset": 1347
+      },
+      "end": {
+        "line": 44,
+        "col": 13,
+        "offset": 3734
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/access.js",
+      "start": {
+        "line": 25,
+        "col": 5,
+        "offset": 2185
+      },
+      "end": {
+        "line": 48,
+        "col": 13,
+        "offset": 4388
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 21,
+        "col": 5,
+        "offset": 578
+      },
+      "end": {
+        "line": 34,
+        "col": 13,
+        "offset": 1337
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 68,
+        "col": 5,
+        "offset": 2317
+      },
+      "end": {
+        "line": 68,
+        "col": 58,
+        "offset": 2370
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 69,
+        "col": 5,
+        "offset": 2376
+      },
+      "end": {
+        "line": 69,
+        "col": 57,
+        "offset": 2428
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 80,
+        "col": 7,
+        "offset": 2772
+      },
+      "end": {
+        "line": 80,
+        "col": 44,
+        "offset": 2809
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 89,
+        "col": 5,
+        "offset": 3012
+      },
+      "end": {
+        "line": 89,
+        "col": 25,
+        "offset": 3032
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 113,
+        "col": 5,
+        "offset": 3816
+      },
+      "end": {
+        "line": 113,
+        "col": 25,
+        "offset": 3836
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 128,
+        "col": 5,
+        "offset": 4378
+      },
+      "end": {
+        "line": 128,
+        "col": 57,
+        "offset": 4430
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/ai-chat.js",
+      "start": {
+        "line": 150,
+        "col": 5,
+        "offset": 5105
+      },
+      "end": {
+        "line": 150,
+        "col": 131,
+        "offset": 5231
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-localstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 64,
+        "col": 7,
+        "offset": 4314
+      },
+      "end": {
+        "line": 64,
+        "col": 106,
+        "offset": 4413
+      },
+      "extra": {
+        "message": "Token stored in localStorage. localStorage persists indefinitely and is accessible to any XSS. Use sessionStorage (cleared on tab close) or HttpOnly cookies.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 81,
+        "col": 7,
+        "offset": 4928
+      },
+      "end": {
+        "line": 81,
+        "col": 49,
+        "offset": 4970
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 86,
+        "col": 7,
+        "offset": 5270
+      },
+      "end": {
+        "line": 86,
+        "col": 51,
+        "offset": 5314
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 90,
+        "col": 7,
+        "offset": 5578
+      },
+      "end": {
+        "line": 90,
+        "col": 43,
+        "offset": 5614
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 94,
+        "col": 7,
+        "offset": 5845
+      },
+      "end": {
+        "line": 94,
+        "col": 44,
+        "offset": 5882
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 259,
+        "col": 5,
+        "offset": 12701
+      },
+      "end": {
+        "line": 260,
+        "col": 127,
+        "offset": 12940
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/app.js",
+      "start": {
+        "line": 310,
+        "col": 5,
+        "offset": 15036
+      },
+      "end": {
+        "line": 310,
+        "col": 302,
+        "offset": 15333
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/assessments.js",
+      "start": {
+        "line": 10,
+        "col": 5,
+        "offset": 356
+      },
+      "end": {
+        "line": 60,
+        "col": 13,
+        "offset": 3514
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/assessments.js",
+      "start": {
+        "line": 89,
+        "col": 7,
+        "offset": 4915
+      },
+      "end": {
+        "line": 92,
+        "col": 28,
+        "offset": 5216
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/audit-calendar.js",
+      "start": {
+        "line": 53,
+        "col": 5,
+        "offset": 2163
+      },
+      "end": {
+        "line": 74,
+        "col": 13,
+        "offset": 3617
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-localstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/audit-calendar.js",
+      "start": {
+        "line": 97,
+        "col": 5,
+        "offset": 5061
+      },
+      "end": {
+        "line": 97,
+        "col": 67,
+        "offset": 5123
+      },
+      "extra": {
+        "message": "Token stored in localStorage. localStorage persists indefinitely and is accessible to any XSS. Use sessionStorage (cleared on tab close) or HttpOnly cookies.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/auditor.js",
+      "start": {
+        "line": 46,
+        "col": 5,
+        "offset": 1791
+      },
+      "end": {
+        "line": 46,
+        "col": 67,
+        "offset": 1853
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-sessionstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/auth.js",
+      "start": {
+        "line": 104,
+        "col": 7,
+        "offset": 3961
+      },
+      "end": {
+        "line": 104,
+        "col": 74,
+        "offset": 4028
+      },
+      "extra": {
+        "message": "Token stored in sessionStorage. Better than localStorage (cleared on tab close) but still accessible to XSS within the same tab. Consider HttpOnly cookies for highest security.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-sessionstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/auth.js",
+      "start": {
+        "line": 166,
+        "col": 5,
+        "offset": 7650
+      },
+      "end": {
+        "line": 166,
+        "col": 72,
+        "offset": 7717
+      },
+      "extra": {
+        "message": "Token stored in sessionStorage. Better than localStorage (cleared on tab close) but still accessible to XSS within the same tab. Consider HttpOnly cookies for highest security.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "LOW"
+        },
+        "severity": "INFO",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/charts.js",
+      "start": {
+        "line": 5,
+        "col": 5,
+        "offset": 194
+      },
+      "end": {
+        "line": 17,
+        "col": 13,
+        "offset": 1128
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/charts.js",
+      "start": {
+        "line": 22,
+        "col": 16,
+        "offset": 1236
+      },
+      "end": {
+        "line": 22,
+        "col": 62,
+        "offset": 1282
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/charts.js",
+      "start": {
+        "line": 23,
+        "col": 5,
+        "offset": 1295
+      },
+      "end": {
+        "line": 29,
+        "col": 13,
+        "offset": 1852
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/charts.js",
+      "start": {
+        "line": 40,
+        "col": 5,
+        "offset": 2381
+      },
+      "end": {
+        "line": 47,
+        "col": 13,
+        "offset": 3518
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/charts.js",
+      "start": {
+        "line": 53,
+        "col": 5,
+        "offset": 3724
+      },
+      "end": {
+        "line": 53,
+        "col": 465,
+        "offset": 4184
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/checklists.js",
+      "start": {
+        "line": 19,
+        "col": 5,
+        "offset": 1297
+      },
+      "end": {
+        "line": 46,
+        "col": 13,
+        "offset": 3438
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/company-profile.js",
+      "start": {
+        "line": 19,
+        "col": 5,
+        "offset": 1088
+      },
+      "end": {
+        "line": 66,
+        "col": 92,
+        "offset": 4816
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-localstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/company-profile.js",
+      "start": {
+        "line": 78,
+        "col": 5,
+        "offset": 5335
+      },
+      "end": {
+        "line": 78,
+        "col": 60,
+        "offset": 5390
+      },
+      "extra": {
+        "message": "Token stored in localStorage. localStorage persists indefinitely and is accessible to any XSS. Use sessionStorage (cleared on tab close) or HttpOnly cookies.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/computers.js",
+      "start": {
+        "line": 22,
+        "col": 5,
+        "offset": 1862
+      },
+      "end": {
+        "line": 45,
+        "col": 13,
+        "offset": 4039
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 45,
+        "col": 5,
+        "offset": 3436
+      },
+      "end": {
+        "line": 45,
+        "col": 53,
+        "offset": 3484
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 66,
+        "col": 5,
+        "offset": 4363
+      },
+      "end": {
+        "line": 71,
+        "col": 5,
+        "offset": 4618
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 162,
+        "col": 7,
+        "offset": 10512
+      },
+      "end": {
+        "line": 162,
+        "col": 90,
+        "offset": 10595
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 417,
+        "col": 5,
+        "offset": 25193
+      },
+      "end": {
+        "line": 496,
+        "col": 5,
+        "offset": 32884
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 529,
+        "col": 5,
+        "offset": 33981
+      },
+      "end": {
+        "line": 531,
+        "col": 15,
+        "offset": 34253
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 993,
+        "col": 17,
+        "offset": 58812
+      },
+      "end": {
+        "line": 993,
+        "col": 126,
+        "offset": 58921
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 996,
+        "col": 19,
+        "offset": 59037
+      },
+      "end": {
+        "line": 996,
+        "col": 104,
+        "offset": 59122
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 1002,
+        "col": 34,
+        "offset": 59317
+      },
+      "end": {
+        "line": 1002,
+        "col": 106,
+        "offset": 59389
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 1009,
+        "col": 21,
+        "offset": 59820
+      },
+      "end": {
+        "line": 1013,
+        "col": 267,
+        "offset": 60558
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/controls.js",
+      "start": {
+        "line": 1019,
+        "col": 21,
+        "offset": 60851
+      },
+      "end": {
+        "line": 1019,
+        "col": 97,
+        "offset": 60927
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/dashboard.js",
+      "start": {
+        "line": 33,
+        "col": 5,
+        "offset": 1226
+      },
+      "end": {
+        "line": 104,
+        "col": 13,
+        "offset": 6060
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/detail.js",
+      "start": {
+        "line": 5,
+        "col": 15,
+        "offset": 182
+      },
+      "end": {
+        "line": 5,
+        "col": 57,
+        "offset": 224
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/detail.js",
+      "start": {
+        "line": 10,
+        "col": 5,
+        "offset": 554
+      },
+      "end": {
+        "line": 66,
+        "col": 13,
+        "offset": 3911
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/documents.js",
+      "start": {
+        "line": 28,
+        "col": 5,
+        "offset": 2007
+      },
+      "end": {
+        "line": 28,
+        "col": 102,
+        "offset": 2104
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/documents.js",
+      "start": {
+        "line": 74,
+        "col": 5,
+        "offset": 4447
+      },
+      "end": {
+        "line": 90,
+        "col": 88,
+        "offset": 5814
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/evidence.js",
+      "start": {
+        "line": 77,
+        "col": 5,
+        "offset": 3160
+      },
+      "end": {
+        "line": 77,
+        "col": 72,
+        "offset": 3227
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/evidence.js",
+      "start": {
+        "line": 323,
+        "col": 5,
+        "offset": 20276
+      },
+      "end": {
+        "line": 348,
+        "col": 13,
+        "offset": 22795
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/evidence.js",
+      "start": {
+        "line": 531,
+        "col": 5,
+        "offset": 35739
+      },
+      "end": {
+        "line": 592,
+        "col": 5,
+        "offset": 40757
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/evidence.js",
+      "start": {
+        "line": 636,
+        "col": 5,
+        "offset": 42668
+      },
+      "end": {
+        "line": 646,
+        "col": 11,
+        "offset": 44022
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/frameworks.js",
+      "start": {
+        "line": 36,
+        "col": 5,
+        "offset": 1098
+      },
+      "end": {
+        "line": 51,
+        "col": 82,
+        "offset": 2391
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/frameworks.js",
+      "start": {
+        "line": 114,
+        "col": 5,
+        "offset": 5341
+      },
+      "end": {
+        "line": 141,
+        "col": 152,
+        "offset": 7866
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/frameworks.js",
+      "start": {
+        "line": 241,
+        "col": 7,
+        "offset": 13321
+      },
+      "end": {
+        "line": 241,
+        "col": 74,
+        "offset": 13388
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/get-started.js",
+      "start": {
+        "line": 37,
+        "col": 5,
+        "offset": 2479
+      },
+      "end": {
+        "line": 60,
+        "col": 13,
+        "offset": 4325
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/groups.js",
+      "start": {
+        "line": 60,
+        "col": 5,
+        "offset": 2670
+      },
+      "end": {
+        "line": 84,
+        "col": 13,
+        "offset": 4321
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/integrations.js",
+      "start": {
+        "line": 31,
+        "col": 5,
+        "offset": 2483
+      },
+      "end": {
+        "line": 43,
+        "col": 86,
+        "offset": 3572
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/login.js",
+      "start": {
+        "line": 47,
+        "col": 5,
+        "offset": 3905
+      },
+      "end": {
+        "line": 54,
+        "col": 17,
+        "offset": 4602
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/login.js",
+      "start": {
+        "line": 90,
+        "col": 5,
+        "offset": 5839
+      },
+      "end": {
+        "line": 90,
+        "col": 121,
+        "offset": 5955
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.token-in-localstorage",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/login.js",
+      "start": {
+        "line": 96,
+        "col": 49,
+        "offset": 6140
+      },
+      "end": {
+        "line": 96,
+        "col": 96,
+        "offset": 6187
+      },
+      "extra": {
+        "message": "Token stored in localStorage. localStorage persists indefinitely and is accessible to any XSS. Use sessionStorage (cleared on tab close) or HttpOnly cookies.\n",
+        "metadata": {
+          "cwe": "CWE-922",
+          "category": "token-storage",
+          "confidence": "MEDIUM"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/monitors.js",
+      "start": {
+        "line": 57,
+        "col": 5,
+        "offset": 3492
+      },
+      "end": {
+        "line": 112,
+        "col": 13,
+        "offset": 10039
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/people.js",
+      "start": {
+        "line": 58,
+        "col": 5,
+        "offset": 2583
+      },
+      "end": {
+        "line": 71,
+        "col": 56,
+        "offset": 3583
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 75,
+        "col": 5,
+        "offset": 4946
+      },
+      "end": {
+        "line": 87,
+        "col": 13,
+        "offset": 6431
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 115,
+        "col": 5,
+        "offset": 7899
+      },
+      "end": {
+        "line": 122,
+        "col": 50,
+        "offset": 8497
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 134,
+        "col": 5,
+        "offset": 8952
+      },
+      "end": {
+        "line": 139,
+        "col": 123,
+        "offset": 9550
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 152,
+        "col": 5,
+        "offset": 10085
+      },
+      "end": {
+        "line": 157,
+        "col": 148,
+        "offset": 10604
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 188,
+        "col": 5,
+        "offset": 11962
+      },
+      "end": {
+        "line": 206,
+        "col": 11,
+        "offset": 13431
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 224,
+        "col": 7,
+        "offset": 14240
+      },
+      "end": {
+        "line": 224,
+        "col": 233,
+        "offset": 14466
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 226,
+        "col": 7,
+        "offset": 14520
+      },
+      "end": {
+        "line": 227,
+        "col": 135,
+        "offset": 14772
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 229,
+        "col": 7,
+        "offset": 14832
+      },
+      "end": {
+        "line": 229,
+        "col": 227,
+        "offset": 15052
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 234,
+        "col": 7,
+        "offset": 15273
+      },
+      "end": {
+        "line": 238,
+        "col": 145,
+        "offset": 15776
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-admin.js",
+      "start": {
+        "line": 240,
+        "col": 7,
+        "offset": 15798
+      },
+      "end": {
+        "line": 240,
+        "col": 76,
+        "offset": 15867
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-support.js",
+      "start": {
+        "line": 20,
+        "col": 5,
+        "offset": 1197
+      },
+      "end": {
+        "line": 28,
+        "col": 78,
+        "offset": 1953
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-support.js",
+      "start": {
+        "line": 46,
+        "col": 5,
+        "offset": 2763
+      },
+      "end": {
+        "line": 49,
+        "col": 50,
+        "offset": 3014
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-support.js",
+      "start": {
+        "line": 53,
+        "col": 5,
+        "offset": 3047
+      },
+      "end": {
+        "line": 59,
+        "col": 74,
+        "offset": 4042
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/platform-support.js",
+      "start": {
+        "line": 64,
+        "col": 5,
+        "offset": 4182
+      },
+      "end": {
+        "line": 64,
+        "col": 83,
+        "offset": 4260
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/policies.js",
+      "start": {
+        "line": 43,
+        "col": 5,
+        "offset": 1687
+      },
+      "end": {
+        "line": 78,
+        "col": 13,
+        "offset": 4654
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/policies.js",
+      "start": {
+        "line": 97,
+        "col": 5,
+        "offset": 5525
+      },
+      "end": {
+        "line": 164,
+        "col": 13,
+        "offset": 11599
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/policies.js",
+      "start": {
+        "line": 285,
+        "col": 5,
+        "offset": 17402
+      },
+      "end": {
+        "line": 372,
+        "col": 13,
+        "offset": 25553
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/policy-templates.js",
+      "start": {
+        "line": 36,
+        "col": 5,
+        "offset": 8091
+      },
+      "end": {
+        "line": 69,
+        "col": 13,
+        "offset": 10699
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/policy-templates.js",
+      "start": {
+        "line": 79,
+        "col": 5,
+        "offset": 11031
+      },
+      "end": {
+        "line": 119,
+        "col": 13,
+        "offset": 13974
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/reports.js",
+      "start": {
+        "line": 12,
+        "col": 5,
+        "offset": 770
+      },
+      "end": {
+        "line": 23,
+        "col": 34,
+        "offset": 1510
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/reports.js",
+      "start": {
+        "line": 46,
+        "col": 5,
+        "offset": 2364
+      },
+      "end": {
+        "line": 54,
+        "col": 119,
+        "offset": 3026
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/settings.js",
+      "start": {
+        "line": 8,
+        "col": 5,
+        "offset": 360
+      },
+      "end": {
+        "line": 64,
+        "col": 13,
+        "offset": 4043
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/users.js",
+      "start": {
+        "line": 35,
+        "col": 5,
+        "offset": 1825
+      },
+      "end": {
+        "line": 57,
+        "col": 13,
+        "offset": 3449
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/vendors.js",
+      "start": {
+        "line": 89,
+        "col": 5,
+        "offset": 8130
+      },
+      "end": {
+        "line": 90,
+        "col": 144,
+        "offset": 8435
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/vendors.js",
+      "start": {
+        "line": 112,
+        "col": 5,
+        "offset": 9291
+      },
+      "end": {
+        "line": 162,
+        "col": 13,
+        "offset": 15232
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/vendors.js",
+      "start": {
+        "line": 326,
+        "col": 5,
+        "offset": 31092
+      },
+      "end": {
+        "line": 343,
+        "col": 73,
+        "offset": 32661
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/vendors.js",
+      "start": {
+        "line": 406,
+        "col": 110,
+        "offset": 39098
+      },
+      "end": {
+        "line": 406,
+        "col": 307,
+        "offset": 39295
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "v2.dom-xss-innerhtml-assignment",
+      "path": "/Users/indukuk/compliance/frontend/platform/js/vulnerabilities.js",
+      "start": {
+        "line": 27,
+        "col": 5,
+        "offset": 2626
+      },
+      "end": {
+        "line": 61,
+        "col": 13,
+        "offset": 5489
+      },
+      "extra": {
+        "message": "Direct assignment to innerHTML with potentially untrusted data. If the value originates from API responses or URL parameters, this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().\n",
+        "metadata": {
+          "cwe": "CWE-79",
+          "category": "dom-xss",
+          "confidence": "MEDIUM"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "DET-ENC-S3-0",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_frontend_stack_0' missing encryption configuration",
+      "description": "S3 bucket does not have explicit encryption at rest configured.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_frontend_stack_0",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_frontend_stack_0)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-S3-1",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_frontend_stack_1' missing encryption configuration",
+      "description": "S3 bucket does not have explicit encryption at rest configured.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_frontend_stack_1",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_frontend_stack_1)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-DDB-2",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_3' uses default encryption",
+      "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+      "evidence": {
+        "snippet": "Resource: DynamoDB_compliance_auth_stack_3",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (DynamoDB_compliance_auth_stack_3)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-DDB-3",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_4' uses default encryption",
+      "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+      "evidence": {
+        "snippet": "Resource: DynamoDB_compliance_auth_stack_4",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (DynamoDB_compliance_auth_stack_4)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-DDB-4",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_5' uses default encryption",
+      "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+      "evidence": {
+        "snippet": "Resource: DynamoDB_compliance_auth_stack_5",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (DynamoDB_compliance_auth_stack_5)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-S3-5",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_stack_17' missing encryption configuration",
+      "description": "S3 bucket does not have explicit encryption at rest configured.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_stack_17",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_stack_17)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-ENC-DDB-6",
+      "agent": "infrastructure",
+      "category": "encryption",
+      "cwe": "CWE-311",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "title": "DynamoDB table 'DynamoDB_compliance_stack_18' uses default encryption",
+      "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+      "evidence": {
+        "snippet": "Resource: DynamoDB_compliance_stack_18",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (DynamoDB_compliance_stack_18)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-LOG-S3-0",
+      "agent": "infrastructure",
+      "category": "logging",
+      "cwe": "CWE-778",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_frontend_stack_0' has no access logging",
+      "description": "No server access logging configured. Cannot audit who accessed objects.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_frontend_stack_0",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_frontend_stack_0)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-LOG-S3-1",
+      "agent": "infrastructure",
+      "category": "logging",
+      "cwe": "CWE-778",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_frontend_stack_1' has no access logging",
+      "description": "No server access logging configured. Cannot audit who accessed objects.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_frontend_stack_1",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_frontend_stack_1)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    },
+    {
+      "id": "DET-LOG-S3-2",
+      "agent": "infrastructure",
+      "category": "logging",
+      "cwe": "CWE-778",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "title": "S3 bucket 'S3_compliance_stack_17' has no access logging",
+      "description": "No server access logging configured. Cannot audit who accessed objects.",
+      "evidence": {
+        "snippet": "Resource: S3_compliance_stack_17",
+        "graph_context": "",
+        "reasoning": ""
+      },
+      "location": "infra/:0 (S3_compliance_stack_17)",
+      "attack_path": [],
+      "blast_radius": [],
+      "remediation": null,
+      "related_findings": [],
+      "validation_verdict": null,
+      "compliance_impact": []
+    }
+  ],
+  "compound": [
+    {
+      "id": "COMPOUND-001",
+      "severity": "CRITICAL",
+      "title": "No auth context + No IAM LeadingKeys = Unrestricted cross-tenant",
+      "attack_narrative": "Application-level vulnerability: customer_id from body reaches DynamoDB. Infrastructure-level gap: IAM has no LeadingKeys condition. Combined: ZERO barriers to cross-tenant access. A single spoofed customer_id field gives access to ALL tenants' data because neither the application NOR IAM enforces tenant boundaries.",
+      "why_compound": "Individually: app vuln is HIGH (maybe auth context is used elsewhere). Individually: no LeadingKeys is MEDIUM (maybe app validates). Together: CRITICAL because BOTH defenses are missing simultaneously.",
+      "remediation": "Fix BOTH layers:\n1. App: customer_id = event['requestContext']['authorizer']['tenant_id']\n2. IAM: Add dynamodb:LeadingKeys condition restricting to tenant prefix\nEither fix alone reduces risk. Both together = defense-in-depth."
+    },
+    {
+      "id": "COMPOUND-002",
+      "severity": "HIGH",
+      "title": "Presigned URL from body + S3 no versioning = Evidence forgery",
+      "attack_narrative": "Application: user-controlled filename in presigned URL key. Infrastructure: S3 bucket has no access logging AND no versioning. Combined: attacker uploads forged evidence via manipulated key path, and there's no audit trail (no logging) and no way to recover the original (no versioning). Evidence tampering is undetectable.",
+      "why_compound": "Individually: presigned URL without basename() is MEDIUM (S3 keys are flat). Individually: no logging is MEDIUM (operational concern). Together: HIGH because evidence integrity cannot be proven in audit.",
+      "remediation": "1. App: os.path.basename(filename) + UUID prefix\n2. Infra: Enable S3 versioning (prevents overwrite of originals)\n3. Infra: Enable S3 access logging (detects unauthorized access)\nFor a compliance platform: all three are mandatory."
+    },
+    {
+      "id": "COMPOUND-003",
+      "severity": "CRITICAL",
+      "title": "Function URL (no authorizer) + broad IAM = Widest attack surface",
+      "attack_narrative": "handler_v3.py accessed via Function URL has NO Lambda authorizer. SigV4 only verifies the caller is an AWS principal, NOT which tenant. The Lambda has full DynamoDB + S3 access (no LeadingKeys). Combined: any AWS-authenticated user can access any tenant's data with zero application-level or IAM-level tenant enforcement.",
+      "why_compound": "The Function URL path is the WORST case: no authorizer (unlike API Gateway path) + no tenant context injection + broad IAM. Three missing defenses on the same code path.",
+      "remediation": "Option A: Remove Function URL. Route all traffic through API Gateway + authorizer.\nOption B: Add custom auth validation in handler_v3 (verify tenant from signed header).\nOption C: Add IAM LeadingKeys + validate customer_id against Cognito lookup."
+    }
+  ],
+  "by_rule": {
+    "presigned-url-user-filename": 2,
+    "cross-tenant-customer-id-from-body": 6,
+    "cognito-create-user-from-body": 2,
+    "langgraph-routing-from-state": 4,
+    "error-details-in-response": 5,
+    "session-id-from-body-to-db": 5,
+    "traceback-in-handler": 4,
+    "evaluation-without-permission-check": 1,
+    "generated-code-to-execution": 1,
+    "dynamodb-scan-multi-tenant": 4,
+    "dom-xss-innerhtml-assignment": 85,
+    "token-in-localstorage": 4,
+    "token-in-sessionstorage": 2
+  },
+  "totals": {
+    "python_taint": 10,
+    "python_gaps": 24,
+    "frontend": 91,
+    "infrastructure": 10,
+    "compound": 3,
+    "cot_reasoned": 3,
+    "total": 141
+  }
+}

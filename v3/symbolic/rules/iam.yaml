@@ -1,0 +1,39 @@
+rules:
+  - id: SYM-IAM-001
+    category: overpermissive_iam
+    severity: CRITICAL
+    cwe: CWE-250
+    title_template: "Principal '{principal}' has AdministratorAccess-equivalent permissions"
+    description_template: "IAM policy grants Action: * on Resource: * — equivalent to full admin access."
+    condition:
+      type: edge_query
+      edge_filter:
+        effect: "Allow"
+        actions_contains: "*"
+    context_needed: false
+    remediation_template: "Replace wildcard with least-privilege actions specific to the function's purpose."
+
+  - id: SYM-IAM-002
+    category: overpermissive_iam
+    severity: HIGH
+    cwe: CWE-250
+    title_template: "Principal '{principal}' has service-level wildcard: {actions}"
+    description_template: "IAM policy grants a service:* wildcard which includes all current and future actions."
+    condition:
+      type: edge_query
+      edge_filter:
+        effect: "Allow"
+        actions_any_wildcard: true
+    context_needed: false
+    remediation_template: "Replace service:* with explicit action list. Use IAM Access Advisor to identify needed actions."
+
+  - id: SYM-IAM-003
+    category: multi_tenant_isolation
+    severity: CRITICAL
+    cwe: CWE-284
+    title_template: "Z3-proven: DynamoDB grants lack tenant isolation (LeadingKeys)"
+    description_template: "Z3 SMT solver formally proves cross-tenant access is possible at IAM layer."
+    condition:
+      type: z3_sat
+      z3_checker: "check_missing_leading_keys"
+    context_needed: false

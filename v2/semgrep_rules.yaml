@@ -1,0 +1,120 @@
+rules:
+  - id: cross-tenant-customer-id-from-body
+    severity: ERROR
+    message: >
+      customer_id extracted from request body (user-controlled) and
+      used for data access. Must come from authorizer context.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("customer_id", ...)
+      - pattern: body.get("customer_id")
+      - pattern: body["customer_id"]
+      - pattern: event.get("headers", {}).get("x-customer-id", ...)
+    pattern-sinks:
+      - pattern: table.put_item(...)
+      - pattern: table.get_item(...)
+      - pattern: table.query(...)
+      - pattern: table.update_item(...)
+      - pattern: _save_session(...)
+      - pattern: _handle_start(...)
+      - pattern: _handle_chat(...)
+      - pattern: lambda_client.invoke(...)
+    pattern-sanitizers:
+      - pattern: |
+          if $X != $Y:
+              ...
+    metadata:
+      cwe: CWE-639
+      category: cross-tenant-access
+      confidence: HIGH
+
+  - id: presigned-url-user-filename
+    severity: WARNING
+    message: >
+      S3 presigned URL generated with filename from request body without
+      sanitization via os.path.basename().
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("filename", ...)
+      - pattern: body.get("filename")
+      - pattern: body["filename"]
+    pattern-sinks:
+      - pattern: s3_client.generate_presigned_url(...)
+      - pattern: s3.generate_presigned_url(...)
+    pattern-sanitizers:
+      - pattern: os.path.basename(...)
+    metadata:
+      cwe: CWE-22
+      category: path-traversal
+      confidence: MEDIUM
+
+  - id: cognito-create-user-from-body
+    severity: WARNING
+    message: >
+      Cognito admin_create_user called with attributes from request body.
+      Verify role/tenant assignment is validated.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("admin_email", ...)
+      - pattern: body["email"]
+      - pattern: body.get("tenant_name", ...)
+      - pattern: body.get("role", ...)
+    pattern-sinks:
+      - pattern: cognito_client.admin_create_user(...)
+      - pattern: cognito.admin_create_user(...)
+    metadata:
+      cwe: CWE-284
+      category: privilege-escalation
+      confidence: MEDIUM
+
+  - id: user-message-to-llm
+    severity: WARNING
+    message: >
+      User message flows to LLM invocation. Prompt injection surface.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("message", ...)
+      - pattern: body["message"]
+    pattern-sinks:
+      - pattern: $CLIENT.invoke_model(...)
+    metadata:
+      cwe: CWE-77
+      category: prompt-injection
+      confidence: LOW
+
+  - id: eval-exec-usage
+    severity: ERROR
+    message: >
+      eval() or exec() detected. Arbitrary code execution if user input reaches this.
+    languages: [python]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+    fix: "ast.literal_eval(...) or remove eval/exec"
+    metadata:
+      cwe: CWE-94
+      category: code-injection
+      confidence: HIGH
+
+  - id: sensitive-data-in-print
+    severity: WARNING
+    message: >
+      User data potentially logged via print(). CloudWatch logs may expose PII.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("message", ...)
+      - pattern: body["password"]
+      - pattern: body.get("access_token", ...)
+    pattern-sinks:
+      - pattern: print(...)
+    pattern-sanitizers:
+      - pattern: len(...)
+    metadata:
+      cwe: CWE-532
+      category: sensitive-logging
+      confidence: LOW

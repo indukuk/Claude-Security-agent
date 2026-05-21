@@ -1,0 +1,272 @@
+[
+  {
+    "check_id": "v2.presigned-url-user-filename",
+    "path": "/Users/indukuk/compliance/src/agent/handler.py",
+    "start": {
+      "line": 113,
+      "col": 25,
+      "offset": 4059
+    },
+    "end": {
+      "line": 117,
+      "col": 10,
+      "offset": 4217
+    },
+    "extra": {
+      "message": "S3 presigned URL generated with filename from request body without sanitization via os.path.basename().\n",
+      "metadata": {
+        "cwe": "CWE-22",
+        "category": "path-traversal",
+        "confidence": "MEDIUM"
+      },
+      "severity": "WARNING",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler.py",
+    "start": {
+      "line": 132,
+      "col": 16,
+      "offset": 4678
+    },
+    "end": {
+      "line": 132,
+      "col": 74,
+      "offset": 4736
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler.py",
+    "start": {
+      "line": 241,
+      "col": 5,
+      "offset": 8866
+    },
+    "end": {
+      "line": 241,
+      "col": 51,
+      "offset": 8912
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+    "start": {
+      "line": 376,
+      "col": 20,
+      "offset": 14654
+    },
+    "end": {
+      "line": 376,
+      "col": 62,
+      "offset": 14696
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler_v2.py",
+    "start": {
+      "line": 382,
+      "col": 20,
+      "offset": 14933
+    },
+    "end": {
+      "line": 382,
+      "col": 61,
+      "offset": 14974
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+    "start": {
+      "line": 151,
+      "col": 20,
+      "offset": 5422
+    },
+    "end": {
+      "line": 151,
+      "col": 62,
+      "offset": 5464
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cross-tenant-customer-id-from-body",
+    "path": "/Users/indukuk/compliance/src/agent/handler_v3.py",
+    "start": {
+      "line": 157,
+      "col": 20,
+      "offset": 5706
+    },
+    "end": {
+      "line": 157,
+      "col": 61,
+      "offset": 5747
+    },
+    "extra": {
+      "message": "customer_id extracted from request body (user-controlled) and used for data access. Must come from authorizer context.\n",
+      "metadata": {
+        "cwe": "CWE-639",
+        "category": "cross-tenant-access",
+        "confidence": "HIGH"
+      },
+      "severity": "ERROR",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.presigned-url-user-filename",
+    "path": "/Users/indukuk/compliance/src/auth/data_handler.py",
+    "start": {
+      "line": 174,
+      "col": 26,
+      "offset": 7899
+    },
+    "end": {
+      "line": 174,
+      "col": 132,
+      "offset": 8005
+    },
+    "extra": {
+      "message": "S3 presigned URL generated with filename from request body without sanitization via os.path.basename().\n",
+      "metadata": {
+        "cwe": "CWE-22",
+        "category": "path-traversal",
+        "confidence": "MEDIUM"
+      },
+      "severity": "WARNING",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cognito-create-user-from-body",
+    "path": "/Users/indukuk/compliance/src/auth/tenant_management.py",
+    "start": {
+      "line": 148,
+      "col": 16,
+      "offset": 5220
+    },
+    "end": {
+      "line": 153,
+      "col": 6,
+      "offset": 5418
+    },
+    "extra": {
+      "message": "Cognito admin_create_user called with attributes from request body. Verify role/tenant assignment is validated.\n",
+      "metadata": {
+        "cwe": "CWE-284",
+        "category": "privilege-escalation",
+        "confidence": "MEDIUM"
+      },
+      "severity": "WARNING",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  },
+  {
+    "check_id": "v2.cognito-create-user-from-body",
+    "path": "/Users/indukuk/compliance/src/auth/user_management.py",
+    "start": {
+      "line": 124,
+      "col": 12,
+      "offset": 4532
+    },
+    "end": {
+      "line": 132,
+      "col": 6,
+      "offset": 4897
+    },
+    "extra": {
+      "message": "Cognito admin_create_user called with attributes from request body. Verify role/tenant assignment is validated.\n",
+      "metadata": {
+        "cwe": "CWE-284",
+        "category": "privilege-escalation",
+        "confidence": "MEDIUM"
+      },
+      "severity": "WARNING",
+      "fingerprint": "requires login",
+      "lines": "requires login",
+      "validation_state": "NO_VALIDATOR",
+      "engine_kind": "OSS"
+    }
+  }
+]

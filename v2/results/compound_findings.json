@@ -1,0 +1,26 @@
+[
+  {
+    "id": "COMPOUND-001",
+    "severity": "CRITICAL",
+    "title": "No auth context + No IAM LeadingKeys = Unrestricted cross-tenant",
+    "attack_narrative": "Application-level vulnerability: customer_id from body reaches DynamoDB. Infrastructure-level gap: IAM has no LeadingKeys condition. Combined: ZERO barriers to cross-tenant access. A single spoofed customer_id field gives access to ALL tenants' data because neither the application NOR IAM enforces tenant boundaries.",
+    "why_compound": "Individually: app vuln is HIGH (maybe auth context is used elsewhere). Individually: no LeadingKeys is MEDIUM (maybe app validates). Together: CRITICAL because BOTH defenses are missing simultaneously.",
+    "remediation": "Fix BOTH layers:\n1. App: customer_id = event['requestContext']['authorizer']['tenant_id']\n2. IAM: Add dynamodb:LeadingKeys condition restricting to tenant prefix\nEither fix alone reduces risk. Both together = defense-in-depth."
+  },
+  {
+    "id": "COMPOUND-002",
+    "severity": "HIGH",
+    "title": "Presigned URL from body + S3 no versioning = Evidence forgery",
+    "attack_narrative": "Application: user-controlled filename in presigned URL key. Infrastructure: S3 bucket has no access logging AND no versioning. Combined: attacker uploads forged evidence via manipulated key path, and there's no audit trail (no logging) and no way to recover the original (no versioning). Evidence tampering is undetectable.",
+    "why_compound": "Individually: presigned URL without basename() is MEDIUM (S3 keys are flat). Individually: no logging is MEDIUM (operational concern). Together: HIGH because evidence integrity cannot be proven in audit.",
+    "remediation": "1. App: os.path.basename(filename) + UUID prefix\n2. Infra: Enable S3 versioning (prevents overwrite of originals)\n3. Infra: Enable S3 access logging (detects unauthorized access)\nFor a compliance platform: all three are mandatory."
+  },
+  {
+    "id": "COMPOUND-003",
+    "severity": "CRITICAL",
+    "title": "Function URL (no authorizer) + broad IAM = Widest attack surface",
+    "attack_narrative": "handler_v3.py accessed via Function URL has NO Lambda authorizer. SigV4 only verifies the caller is an AWS principal, NOT which tenant. The Lambda has full DynamoDB + S3 access (no LeadingKeys). Combined: any AWS-authenticated user can access any tenant's data with zero application-level or IAM-level tenant enforcement.",
+    "why_compound": "The Function URL path is the WORST case: no authorizer (unlike API Gateway path) + no tenant context injection + broad IAM. Three missing defenses on the same code path.",
+    "remediation": "Option A: Remove Function URL. Route all traffic through API Gateway + authorizer.\nOption B: Add custom auth validation in handler_v3 (verify tenant from signed header).\nOption C: Add IAM LeadingKeys + validate customer_id against Cognito lookup."
+  }
+]

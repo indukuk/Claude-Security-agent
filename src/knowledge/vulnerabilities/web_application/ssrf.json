@@ -1,0 +1,76 @@
+{
+  "category": "Server-Side Request Forgery",
+  "owasp": "A10:2021",
+  "description": "SSRF occurs when a web application fetches a remote resource without validating the user-supplied URL, allowing attackers to make requests to internal services.",
+  "entries": [
+    {
+      "id": "WEB-SSRF-001",
+      "cwe": "CWE-918",
+      "name": "SSRF to AWS IMDS (Instance Metadata Service)",
+      "severity": "CRITICAL",
+      "description": "SSRF vulnerability allows attacker to reach AWS metadata service at 169.254.169.254, stealing IAM role credentials.",
+      "how_it_works": "Application makes HTTP request to user-controlled URL. Attacker provides http://169.254.169.254/latest/meta-data/iam/security-credentials/ROLE_NAME which returns temporary AWS credentials for the instance/Lambda role.",
+      "preconditions": ["Application makes outbound HTTP requests with user-controlled URL", "Running on AWS (EC2/Lambda/ECS)", "IMDSv1 enabled (or IMDSv2 without hop limit)"],
+      "impact": ["AWS credential theft", "Full access to whatever the role permits", "Lateral movement through AWS account", "Data exfiltration from S3/DynamoDB/etc."],
+      "affected_components": ["requests.get(url)", "urllib.request.urlopen(url)", "httpx.get(url)", "Any HTTP client with user-controlled URL"],
+      "detection_guidance": "Find paths where user input influences a URL that is fetched server-side. In Lambda: check if any URL is constructed from request body/params.",
+      "exploit_payloads": [
+        "http://169.254.169.254/latest/meta-data/",
+        "http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+        "http://169.254.169.254/latest/meta-data/iam/security-credentials/ROLE_NAME",
+        "http://169.254.169.254/latest/dynamic/instance-identity/document",
+        "http://[::ffff:169.254.169.254]/",
+        "http://169.254.169.254.xip.io/",
+        "http://0xa9fea9fe/"
+      ],
+      "vulnerable_code": "import requests\nurl = body.get('webhook_url')\nresponse = requests.get(url)  # User controls URL",
+      "safe_code": "import requests\nfrom urllib.parse import urlparse\n\nurl = body.get('webhook_url')\nparsed = urlparse(url)\n\n# Deny internal IPs\nBLOCKED = ['169.254.', '10.', '172.16.', '192.168.', '127.', '0.0.0.0']\nif any(parsed.hostname.startswith(b) for b in BLOCKED):\n    return {'statusCode': 400, 'body': 'Invalid URL'}\n\n# Deny non-HTTPS\nif parsed.scheme != 'https':\n    return {'statusCode': 400, 'body': 'HTTPS required'}\n\nresponse = requests.get(url, timeout=5)",
+      "remediation": ["Validate/whitelist URLs before fetching", "Block requests to internal IP ranges (RFC 1918, link-local, loopback)", "Use IMDSv2 with hop limit of 1 (prevents SSRF from containers)", "Use VPC endpoints instead of public internet for AWS service access", "DNS rebinding protection: resolve hostname, check IP, then fetch"],
+      "references": ["https://owasp.org/www-community/attacks/Server_Side_Request_Forgery", "Capital One breach (2019)"],
+      "tags": ["ssrf", "aws", "imds", "credential_theft", "lambda"]
+    },
+    {
+      "id": "WEB-SSRF-002",
+      "cwe": "CWE-918",
+      "name": "SSRF to Internal AWS Services (VPC Endpoints)",
+      "severity": "HIGH",
+      "description": "SSRF allows reaching internal AWS service endpoints not accessible from the internet.",
+      "how_it_works": "If Lambda/EC2 is in a VPC with access to internal services (Elasticsearch, RDS, Redis), SSRF can reach these services. Attacker queries internal databases or admin panels.",
+      "preconditions": ["Application in VPC with internal service access", "User-controlled URL in HTTP request", "Internal services lack additional authentication"],
+      "impact": ["Access to internal databases", "Admin panel access", "Service discovery of internal infrastructure"],
+      "affected_components": ["Any HTTP client in VPC-connected compute"],
+      "detection_guidance": "Find HTTP requests with user-influenced URLs in Lambda/EC2 that run in a VPC. Even if IMDS is protected, internal services may be vulnerable.",
+      "exploit_payloads": [
+        "http://internal-elasticsearch:9200/_cat/indices",
+        "http://internal-redis:6379/",
+        "http://internal-service.local/admin",
+        "http://rds-instance.cluster-xxx.us-east-1.rds.amazonaws.com:5432/"
+      ],
+      "vulnerable_code": "# Lambda in VPC fetches user-provided URL\nurl = event['body']['document_url']\nresponse = requests.get(url)",
+      "safe_code": "# Whitelist allowed URL patterns\nALLOWED_DOMAINS = ['s3.amazonaws.com', 'specific-partner.com']\nparsed = urlparse(url)\nif parsed.hostname not in ALLOWED_DOMAINS:\n    raise ValueError('Domain not allowed')",
+      "remediation": ["Implement URL allowlist (not blocklist)", "Use signed URLs for document fetching", "Add network segmentation (security groups on internal services)", "Require authentication on all internal services"],
+      "references": ["https://portswigger.net/web-security/ssrf"],
+      "tags": ["ssrf", "vpc", "internal_services", "aws"]
+    },
+    {
+      "id": "WEB-SSRF-003",
+      "cwe": "CWE-918",
+      "name": "Blind SSRF via DNS Rebinding",
+      "severity": "MEDIUM",
+      "description": "URL validation checks DNS at validation time, but DNS rebinds to internal IP at fetch time.",
+      "how_it_works": "Attacker's DNS server returns a public IP on first query (passes validation) then returns 169.254.169.254 on second query (during actual fetch). Time-of-check-time-of-use (TOCTOU) vulnerability.",
+      "preconditions": ["URL validation resolves hostname separately from the fetch", "No pinning of resolved IP"],
+      "impact": ["Bypass of IP-based SSRF protections", "Access to IMDS or internal services"],
+      "affected_components": ["Any URL validation that resolves DNS separately from fetch"],
+      "detection_guidance": "Check if URL validation resolves hostname independently from the HTTP library's resolution.",
+      "exploit_payloads": [
+        "http://rebind.attacker.com/ (resolves to public IP first, then 169.254.169.254)"
+      ],
+      "vulnerable_code": "# Validate: resolve hostname\nip = socket.gethostbyname(parsed.hostname)  # Returns public IP\nassert not is_internal(ip)  # Passes!\n\n# Fetch: library resolves again\nresponse = requests.get(url)  # DNS now returns 169.254.169.254",
+      "safe_code": "# Resolve ONCE, then connect to that IP directly\nimport socket\nip = socket.gethostbyname(parsed.hostname)\nif is_internal(ip):\n    raise ValueError('Internal IP')\n# Force connection to the resolved IP\nresponse = requests.get(url, headers={'Host': parsed.hostname},\n                        allow_redirects=False,\n                        stream=True)",
+      "remediation": ["Resolve DNS once and pin the result", "Use the resolved IP directly for the connection", "Disable redirects (attacker can redirect to internal IP)", "Use a proxy/firewall that validates destination IPs"],
+      "references": ["https://danielmiessler.com/study/dns-rebinding/"],
+      "tags": ["ssrf", "dns_rebinding", "toctou", "bypass"]
+    }
+  ]
+}

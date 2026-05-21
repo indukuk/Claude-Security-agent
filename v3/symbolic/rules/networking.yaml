@@ -1,0 +1,48 @@
+rules:
+  - id: SYM-NET-001
+    category: network_exposure
+    severity: CRITICAL
+    cwe: CWE-284
+    title_template: "Data store '{resource_id}' is publicly reachable from the internet"
+    description_template: "A data store is reachable via network path from INTERNET. Data stores should never have direct public access."
+    condition:
+      type: graph_query
+      node_filter:
+        is_data: true
+      property_check: "is_publicly_reachable()"
+    context_needed: false
+    remediation_template: "Remove public access. Place data stores in private subnets behind API Gateway or VPC endpoints."
+
+  - id: SYM-NET-002
+    category: network_exposure
+    severity: MEDIUM
+    cwe: CWE-284
+    title_template: "Lambda '{resource_id}' accesses data stores without VPC isolation"
+    description_template: "Compute resource accesses sensitive data without VPC network isolation."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::Lambda::Function"
+      property_check: "not props.get('VpcConfig') and not props.get('vpc_config')"
+    context_needed: true
+    context_questions:
+      - "Does this Lambda process sensitive data that warrants VPC isolation?"
+      - "Is there a compliance requirement for network segmentation?"
+    remediation_template: "Add VpcConfig with private subnets and appropriate security groups."
+
+  - id: SYM-NET-003
+    category: network_exposure
+    severity: HIGH
+    cwe: CWE-284
+    title_template: "API Gateway '{resource_id}' has no WAF association"
+    description_template: "Public-facing API has no AWS WAF web ACL for request filtering."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::ApiGateway::RestApi"
+      property_check: "not props.get('WebAclArn') and not props.get('waf')"
+    context_needed: true
+    context_questions:
+      - "Is this API handling authentication-sensitive or payment operations?"
+      - "Is rate limiting handled by another mechanism (CloudFront, custom middleware)?"
+    remediation_template: "Associate an AWS WAF web ACL with rate limiting and SQL injection rules."

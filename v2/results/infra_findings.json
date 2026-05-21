@@ -1,0 +1,222 @@
+[
+  {
+    "id": "DET-ENC-S3-0",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_frontend_stack_0' missing encryption configuration",
+    "description": "S3 bucket does not have explicit encryption at rest configured.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_frontend_stack_0",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_frontend_stack_0)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-S3-1",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_frontend_stack_1' missing encryption configuration",
+    "description": "S3 bucket does not have explicit encryption at rest configured.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_frontend_stack_1",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_frontend_stack_1)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-DDB-2",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "LOW",
+    "confidence": "HIGH",
+    "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_3' uses default encryption",
+    "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+    "evidence": {
+      "snippet": "Resource: DynamoDB_compliance_auth_stack_3",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (DynamoDB_compliance_auth_stack_3)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-DDB-3",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "LOW",
+    "confidence": "HIGH",
+    "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_4' uses default encryption",
+    "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+    "evidence": {
+      "snippet": "Resource: DynamoDB_compliance_auth_stack_4",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (DynamoDB_compliance_auth_stack_4)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-DDB-4",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "LOW",
+    "confidence": "HIGH",
+    "title": "DynamoDB table 'DynamoDB_compliance_auth_stack_5' uses default encryption",
+    "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+    "evidence": {
+      "snippet": "Resource: DynamoDB_compliance_auth_stack_5",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (DynamoDB_compliance_auth_stack_5)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-S3-5",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_stack_17' missing encryption configuration",
+    "description": "S3 bucket does not have explicit encryption at rest configured.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_stack_17",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_stack_17)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-ENC-DDB-6",
+    "agent": "infrastructure",
+    "category": "encryption",
+    "cwe": "CWE-311",
+    "severity": "LOW",
+    "confidence": "HIGH",
+    "title": "DynamoDB table 'DynamoDB_compliance_stack_18' uses default encryption",
+    "description": "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance.",
+    "evidence": {
+      "snippet": "Resource: DynamoDB_compliance_stack_18",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (DynamoDB_compliance_stack_18)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-LOG-S3-0",
+    "agent": "infrastructure",
+    "category": "logging",
+    "cwe": "CWE-778",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_frontend_stack_0' has no access logging",
+    "description": "No server access logging configured. Cannot audit who accessed objects.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_frontend_stack_0",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_frontend_stack_0)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-LOG-S3-1",
+    "agent": "infrastructure",
+    "category": "logging",
+    "cwe": "CWE-778",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_frontend_stack_1' has no access logging",
+    "description": "No server access logging configured. Cannot audit who accessed objects.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_frontend_stack_1",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_frontend_stack_1)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  },
+  {
+    "id": "DET-LOG-S3-2",
+    "agent": "infrastructure",
+    "category": "logging",
+    "cwe": "CWE-778",
+    "severity": "MEDIUM",
+    "confidence": "HIGH",
+    "title": "S3 bucket 'S3_compliance_stack_17' has no access logging",
+    "description": "No server access logging configured. Cannot audit who accessed objects.",
+    "evidence": {
+      "snippet": "Resource: S3_compliance_stack_17",
+      "graph_context": "",
+      "reasoning": ""
+    },
+    "location": "infra/:0 (S3_compliance_stack_17)",
+    "attack_path": [],
+    "blast_radius": [],
+    "remediation": null,
+    "related_findings": [],
+    "validation_verdict": null,
+    "compliance_impact": []
+  }
+]

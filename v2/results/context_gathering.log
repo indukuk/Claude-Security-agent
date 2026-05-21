@@ -1,0 +1,74 @@
+Loaded 10 Semgrep findings
+
+Unique findings (deduped): 7
+
+────────────────────────────────────────────────────────────
+Gathering context for [ERROR] cross-tenant-customer-id-from-body
+  /Users/indukuk/compliance/src/agent/handler.py:132
+  Auth context in file: NO
+  Sanitizers found: 1
+  Authorizer: True
+────────────────────────────────────────────────────────────
+Gathering context for [ERROR] cross-tenant-customer-id-from-body
+  /Users/indukuk/compliance/src/agent/handler_v2.py:376
+  Auth context in file: NO
+  Sanitizers found: 2
+  Authorizer: True
+────────────────────────────────────────────────────────────
+Gathering context for [ERROR] cross-tenant-customer-id-from-body
+  /Users/indukuk/compliance/src/agent/handler_v3.py:151
+  Auth context in file: NO
+  Sanitizers found: 4
+  Authorizer: partial
+────────────────────────────────────────────────────────────
+Gathering context for [WARNING] presigned-url-user-filename
+  /Users/indukuk/compliance/src/agent/handler.py:113
+  Auth context in file: NO
+  Sanitizers found: 1
+  Authorizer: True
+────────────────────────────────────────────────────────────
+Gathering context for [WARNING] presigned-url-user-filename
+  /Users/indukuk/compliance/src/auth/data_handler.py:174
+  Auth context in file: YES
+  Sanitizers found: 1
+  Authorizer: True
+────────────────────────────────────────────────────────────
+Gathering context for [WARNING] cognito-create-user-from-body
+  /Users/indukuk/compliance/src/auth/tenant_management.py:148
+  Auth context in file: YES
+  Sanitizers found: 0
+  Authorizer: True
+────────────────────────────────────────────────────────────
+Gathering context for [WARNING] cognito-create-user-from-body
+  /Users/indukuk/compliance/src/auth/user_management.py:124
+  Auth context in file: YES
+  Sanitizers found: 0
+  Authorizer: True
+
+════════════════════════════════════════════════════════════
+CoT PROMPTS GENERATED: /Users/indukuk/security-agent/v2/cot_prompts.md
+════════════════════════════════════════════════════════════
+
+Findings for Claude to analyze:
+  1. [ERROR] cross-tenant-customer-id-from-body — handler.py:132
+  2. [ERROR] cross-tenant-customer-id-from-body — handler_v2.py:376
+  3. [ERROR] cross-tenant-customer-id-from-body — handler_v3.py:151
+  4. [WARNING] presigned-url-user-filename — handler.py:113
+  5. [WARNING] presigned-url-user-filename — data_handler.py:174
+  6. [WARNING] cognito-create-user-from-body — tenant_management.py:148
+  7. [WARNING] cognito-create-user-from-body — user_management.py:124
+
+Next: Claude reads cot_prompts.md and performs Think & Verify on each.
+  Resources: 24
+  IAM edges: 23
+  Findings: 10
+    [MEDIUM] S3 bucket 'S3_compliance_frontend_stack_0' missing encryption configuration
+    [MEDIUM] S3 bucket 'S3_compliance_frontend_stack_1' missing encryption configuration
+    [LOW] DynamoDB table 'DynamoDB_compliance_auth_stack_3' uses default encryption
+    [LOW] DynamoDB table 'DynamoDB_compliance_auth_stack_4' uses default encryption
+    [LOW] DynamoDB table 'DynamoDB_compliance_auth_stack_5' uses default encryption
+    [MEDIUM] S3 bucket 'S3_compliance_stack_17' missing encryption configuration
+    [LOW] DynamoDB table 'DynamoDB_compliance_stack_18' uses default encryption
+    [MEDIUM] S3 bucket 'S3_compliance_frontend_stack_0' has no access logging
+    [MEDIUM] S3 bucket 'S3_compliance_frontend_stack_1' has no access logging
+    [MEDIUM] S3 bucket 'S3_compliance_stack_17' has no access logging

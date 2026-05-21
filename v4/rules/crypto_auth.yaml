@@ -1,0 +1,91 @@
+rules:
+  - id: jwt-base64-decode-no-verify
+    patterns:
+      - pattern: |
+          base64.b64decode($PAYLOAD)
+      - pattern-not-inside: |
+          jwt.decode(...)
+      - pattern-not-inside: |
+          jose.$FUNC(...)
+    message: |
+      JWT payload decoded via base64 without signature verification.
+      An attacker can forge a JWT with arbitrary claims.
+      Use jwt.decode() with signature verification or extract claims
+      from the API Gateway authorizer context.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-345
+      category: authentication-bypass
+      confidence: HIGH
+
+  - id: jwt-split-decode-pattern
+    patterns:
+      - pattern: |
+          $TOKEN.split('.')[1]
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+    message: |
+      JWT token split by '.' and payload extracted without verification.
+      This is the classic unsigned JWT decode anti-pattern.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-345
+      category: authentication-bypass
+      confidence: HIGH
+
+  - id: custom-rsa-verification
+    patterns:
+      - pattern: |
+          pow($BASE, $EXP, $MOD)
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+    message: |
+      Manual RSA computation (modular exponentiation) instead of
+      established cryptographic library. Use cryptography, PyJWT,
+      or python-jose for signature verification.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-327
+      category: cryptographic-vulnerability
+      confidence: MEDIUM
+
+  - id: custom-signature-verify
+    pattern-either:
+      - pattern: |
+          hashlib.$HASH($DATA).digest() == $SIG
+      - pattern: |
+          hmac.compare_digest(hashlib.$HASH($DATA).digest(), $SIG)
+    message: |
+      Custom signature verification implementation. Consider using
+      established JWT or cryptographic signature libraries instead.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-327
+      category: cryptographic-vulnerability
+      confidence: MEDIUM
+
+  - id: verified-comment-but-not
+    patterns:
+      - pattern: |
+          # ... $COMMENT
+          ...
+          base64.b64decode(...)
+      - metavariable-regex:
+          metavariable: $COMMENT
+          regex: ".*(already verified|verified by|authorizer.*verified).*"
+    message: |
+      Comment claims JWT is "already verified" but code performs
+      base64 decode without actual verification. The claim may be
+      incorrect if invocation path changes.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-345
+      category: authentication-bypass
+      confidence: MEDIUM

@@ -1,0 +1,45 @@
+rules:
+  - id: SYM-LOG-001
+    category: logging
+    severity: MEDIUM
+    cwe: CWE-778
+    title_template: "S3 bucket '{resource_id}' has no server access logging"
+    description_template: "No access logging configured. Cannot audit who accessed or modified objects."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::S3::Bucket"
+      property_check: "not props.get('LoggingConfiguration') and not props.get('server_access_logs_bucket')"
+    context_needed: false
+    remediation_template: "Enable server access logging to a dedicated logging bucket."
+
+  - id: SYM-LOG-002
+    category: logging
+    severity: MEDIUM
+    cwe: CWE-778
+    title_template: "DynamoDB table '{resource_id}' has no CloudTrail data event logging"
+    description_template: "Data-plane operations (GetItem, PutItem) not logged. Cannot audit data access."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::DynamoDB::Table"
+      property_check: "not props.get('CloudTrailDataEvents')"
+    context_needed: true
+    context_questions:
+      - "Does this table store sensitive tenant data requiring access audit trails?"
+      - "Is there a compliance requirement for data-plane audit logging?"
+
+  - id: SYM-LOG-003
+    category: logging
+    severity: LOW
+    cwe: CWE-778
+    title_template: "Lambda function '{resource_id}' log retention not configured"
+    description_template: "CloudWatch Logs retention defaults to never-expire. Compliance may require specific retention."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::Lambda::Function"
+      property_check: "not props.get('LogRetention') and not props.get('log_retention')"
+    context_needed: true
+    context_questions:
+      - "What is the required log retention period for compliance (SOC2=1yr, PCI=1yr)?"

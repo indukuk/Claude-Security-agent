@@ -1,0 +1,47 @@
+rules:
+  - id: SYM-ENC-001
+    category: encryption
+    severity: MEDIUM
+    cwe: CWE-311
+    title_template: "S3 bucket '{resource_id}' missing explicit encryption configuration"
+    description_template: "S3 bucket does not specify server-side encryption. Data at rest may not be encrypted with a customer-managed key."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::S3::Bucket"
+      property_check: "not props.get('BucketEncryption') and not props.get('encryption')"
+    context_needed: false
+    remediation_template: "Add BucketEncryption with SSE-S3 or SSE-KMS configuration."
+
+  - id: SYM-ENC-002
+    category: encryption
+    severity: LOW
+    cwe: CWE-311
+    title_template: "DynamoDB table '{resource_id}' uses default AWS-owned encryption"
+    description_template: "DynamoDB table uses AWS-owned key (default). Consider CMK for compliance requirements."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::DynamoDB::Table"
+      property_check: "not props.get('SSESpecification')"
+    context_needed: true
+    context_questions:
+      - "Does this table store PII or PHI requiring customer-managed encryption keys?"
+      - "Is there a compliance mandate (SOC2, HIPAA, PCI) requiring CMK encryption?"
+    remediation_template: "Add SSESpecification with SSEEnabled=true and KMSMasterKeyId pointing to a CMK."
+
+  - id: SYM-ENC-003
+    category: encryption
+    severity: HIGH
+    cwe: CWE-319
+    title_template: "S3 bucket '{resource_id}' allows non-HTTPS access"
+    description_template: "No bucket policy enforcing aws:SecureTransport. Data may transit unencrypted."
+    condition:
+      type: graph_query
+      node_filter:
+        resource_type: "AWS::S3::Bucket"
+      property_check: "not props.get('enforce_ssl') and not props.get('SecureTransport')"
+    context_needed: true
+    context_questions:
+      - "Is this bucket accessed from within VPC only (where HTTPS is guaranteed)?"
+      - "Does a CloudFront distribution with HTTPS-only enforce transport security?"

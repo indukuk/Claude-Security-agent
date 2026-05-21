@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.venv/
+venv/
+*.so
+
+# Scan outputs (generated per-run, not source)
+scan_results.json
+reports/
+.security-agent/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local state
+.claude/

@@ -1,0 +1,331 @@
+rules:
+  # ═══════════════════════════════════════════════════════════════
+  # DOM XSS: innerHTML / outerHTML / document.write
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: dom-xss-innerhtml-assignment
+    severity: ERROR
+    message: >
+      Direct assignment to innerHTML with potentially untrusted data.
+      If the value originates from API responses or URL parameters,
+      this is a DOM XSS vulnerability. Use textContent or DOMPurify.sanitize().
+    languages: [javascript]
+    patterns:
+      - pattern: $EL.innerHTML = $VALUE
+    pattern-not:
+      - pattern: $EL.innerHTML = ""
+    metadata:
+      cwe: CWE-79
+      category: dom-xss
+      confidence: MEDIUM
+
+  - id: dom-xss-innerhtml-concat
+    severity: ERROR
+    message: >
+      innerHTML concatenation with dynamic content. Each concatenation
+      is a potential XSS injection point.
+    languages: [javascript]
+    patterns:
+      - pattern: $EL.innerHTML += $VALUE
+    metadata:
+      cwe: CWE-79
+      category: dom-xss
+      confidence: HIGH
+
+  - id: dom-xss-document-write
+    severity: ERROR
+    message: >
+      document.write() with dynamic content. This is almost always a
+      DOM XSS vulnerability. Use DOM APIs (createElement, textContent) instead.
+    languages: [javascript]
+    patterns:
+      - pattern: document.write(...)
+    metadata:
+      cwe: CWE-79
+      category: dom-xss
+      confidence: HIGH
+
+  - id: dom-xss-insert-adjacent-html
+    severity: ERROR
+    message: >
+      insertAdjacentHTML with dynamic content. If the content includes
+      user-controlled data, this is DOM XSS.
+    languages: [javascript]
+    patterns:
+      - pattern: $EL.insertAdjacentHTML($POS, $HTML)
+    metadata:
+      cwe: CWE-79
+      category: dom-xss
+      confidence: MEDIUM
+
+  - id: dom-xss-outerhtml
+    severity: ERROR
+    message: >
+      Assignment to outerHTML with dynamic content.
+    languages: [javascript]
+    patterns:
+      - pattern: $EL.outerHTML = $VALUE
+    metadata:
+      cwe: CWE-79
+      category: dom-xss
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # DOM XSS via Taint: fetch response → DOM sink
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: dom-xss-fetch-to-dom
+    severity: ERROR
+    message: >
+      API response data flows to DOM sink (innerHTML). If API returns
+      user-generated content (compliance evaluations, messages), this
+      enables stored XSS.
+    languages: [javascript]
+    mode: taint
+    pattern-sources:
+      - pattern: await $RESPONSE.json()
+      - pattern: await $RESPONSE.text()
+      - pattern: JSON.parse($RESPONSE)
+    pattern-sinks:
+      - pattern: $EL.innerHTML = $SINK
+      - pattern: $EL.innerHTML += $SINK
+      - pattern: $EL.insertAdjacentHTML($POS, $SINK)
+      - pattern: document.write($SINK)
+    pattern-sanitizers:
+      - pattern: DOMPurify.sanitize(...)
+      - pattern: $X.textContent = ...
+    metadata:
+      cwe: CWE-79
+      category: dom-xss-taint
+      confidence: HIGH
+
+  # ═══════════════════════════════════════════════════════════════
+  # DOM XSS via URL parameters
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: dom-xss-url-params-to-dom
+    severity: ERROR
+    message: >
+      URL parameter value flows to DOM sink. Attacker crafts URL with
+      XSS payload, tricks user into clicking.
+    languages: [javascript]
+    mode: taint
+    pattern-sources:
+      - pattern: new URLSearchParams(location.search).get(...)
+      - pattern: location.hash
+      - pattern: location.search
+      - pattern: window.location.search
+    pattern-sinks:
+      - pattern: $EL.innerHTML = $SINK
+      - pattern: document.write($SINK)
+    pattern-sanitizers:
+      - pattern: DOMPurify.sanitize(...)
+      - pattern: encodeURIComponent(...)
+    metadata:
+      cwe: CWE-79
+      category: dom-xss-reflected
+      confidence: HIGH
+
+  # ═══════════════════════════════════════════════════════════════
+  # Code Injection: eval, Function, setTimeout with strings
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: js-eval-usage
+    severity: ERROR
+    message: >
+      eval() usage detected. If any user-controlled data reaches eval,
+      arbitrary JavaScript execution is possible.
+    languages: [javascript]
+    patterns:
+      - pattern: eval(...)
+    metadata:
+      cwe: CWE-94
+      category: code-injection
+      confidence: HIGH
+
+  - id: js-function-constructor
+    severity: WARNING
+    message: >
+      Function() constructor with string argument. Equivalent to eval().
+    languages: [javascript]
+    patterns:
+      - pattern: new Function($CODE)
+      - pattern: Function($CODE)
+    metadata:
+      cwe: CWE-94
+      category: code-injection
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # Hardcoded Secrets & API Endpoints
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: hardcoded-aws-api-endpoint
+    severity: WARNING
+    message: >
+      AWS API Gateway endpoint hardcoded in frontend JavaScript.
+      Any user can extract this URL for direct API access outside the app.
+    languages: [javascript]
+    pattern-either:
+      - pattern: $VAR = "https://$X.execute-api.$REGION.amazonaws.com/$PATH"
+      - pattern: |
+          "https://$X.execute-api.$REGION.amazonaws.com/$PATH"
+    metadata:
+      cwe: CWE-798
+      category: hardcoded-secret
+      confidence: HIGH
+
+  - id: hardcoded-cognito-config
+    severity: INFO
+    message: >
+      Cognito User Pool ID or Client ID in frontend code. These are
+      semi-public (clients need them) but enable targeted attacks
+      (brute force, user enumeration).
+    languages: [javascript]
+    pattern-either:
+      - pattern: |
+          $VAR = "us-east-1_$POOL_ID"
+      - pattern: |
+          UserPoolId: "us-east-1_$POOL_ID"
+      - pattern: |
+          ClientId: "$CLIENT_ID"
+    metadata:
+      cwe: CWE-798
+      category: hardcoded-config
+      confidence: LOW
+
+  - id: hardcoded-api-key
+    severity: ERROR
+    message: >
+      API key hardcoded in frontend JavaScript. Anyone can extract and
+      reuse this key. Use per-user authentication tokens instead.
+    languages: [javascript]
+    pattern-either:
+      - pattern: |
+          "X-Api-Key": "$KEY"
+      - pattern: |
+          "x-api-key": "$KEY"
+      - pattern: |
+          headers: {..., "X-Api-Key": $KEY, ...}
+    metadata:
+      cwe: CWE-798
+      category: hardcoded-secret
+      confidence: HIGH
+
+  # ═══════════════════════════════════════════════════════════════
+  # Token Handling
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: token-in-localstorage
+    severity: WARNING
+    message: >
+      Token stored in localStorage. localStorage persists indefinitely
+      and is accessible to any XSS. Use sessionStorage (cleared on tab
+      close) or HttpOnly cookies.
+    languages: [javascript]
+    patterns:
+      - pattern: localStorage.setItem($KEY, $TOKEN)
+    metadata:
+      cwe: CWE-922
+      category: token-storage
+      confidence: MEDIUM
+
+  - id: token-in-sessionstorage
+    severity: INFO
+    message: >
+      Token stored in sessionStorage. Better than localStorage (cleared
+      on tab close) but still accessible to XSS within the same tab.
+      Consider HttpOnly cookies for highest security.
+    languages: [javascript]
+    patterns:
+      - pattern: sessionStorage.setItem($KEY, $TOKEN)
+    metadata:
+      cwe: CWE-922
+      category: token-storage
+      confidence: LOW
+
+  - id: token-in-url
+    severity: ERROR
+    message: >
+      Token or sensitive value included in URL. Will be logged in
+      browser history, server access logs, and potentially referrer headers.
+    languages: [javascript]
+    mode: taint
+    pattern-sources:
+      - pattern: sessionStorage.getItem($KEY)
+      - pattern: localStorage.getItem($KEY)
+    pattern-sinks:
+      - pattern: fetch(`...${$SINK}...`)
+      - pattern: window.location.href = $SINK
+      - pattern: window.location = $SINK
+    metadata:
+      cwe: CWE-598
+      category: token-exposure
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # Open Redirect
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: open-redirect
+    severity: WARNING
+    message: >
+      Navigation to URL from user-controlled source (URL params, input).
+      Attacker can craft link redirecting to phishing page after auth.
+    languages: [javascript]
+    mode: taint
+    pattern-sources:
+      - pattern: new URLSearchParams(location.search).get(...)
+      - pattern: location.hash.substring(...)
+    pattern-sinks:
+      - pattern: window.location = $SINK
+      - pattern: window.location.href = $SINK
+      - pattern: location.assign($SINK)
+      - pattern: location.replace($SINK)
+    metadata:
+      cwe: CWE-601
+      category: open-redirect
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # Miscellaneous Frontend Security
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: console-log-sensitive
+    severity: WARNING
+    message: >
+      Sensitive data (token, password, key) potentially logged to
+      browser console. Visible to anyone with DevTools open or
+      browser extensions that capture console output.
+    languages: [javascript]
+    patterns:
+      - pattern: console.log(..., $TOKEN, ...)
+    metavariable-regex:
+      metavariable: $TOKEN
+      regex: ".*(token|Token|password|Password|secret|Secret|key|Key|jwt|JWT).*"
+    metadata:
+      cwe: CWE-532
+      category: sensitive-logging
+      confidence: LOW
+
+  - id: postmessage-no-origin-check
+    severity: WARNING
+    message: >
+      postMessage event listener without origin verification.
+      Any page can send messages to this window.
+    languages: [javascript]
+    patterns:
+      - pattern: |
+          window.addEventListener("message", function($EVENT) {
+            ...
+          })
+    pattern-not-inside: |
+      window.addEventListener("message", function($EVENT) {
+        ...
+        if ($EVENT.origin ...) { ... }
+        ...
+      })
+    metadata:
+      cwe: CWE-346
+      category: cross-origin
+      confidence: MEDIUM

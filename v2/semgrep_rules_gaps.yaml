@@ -1,0 +1,158 @@
+rules:
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 1: Session ID from body → DynamoDB get_item
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: session-id-from-body-to-db
+    severity: WARNING
+    message: >
+      session_id from request body used as DynamoDB key. If session IDs
+      are predictable or if users can access other users' sessions by
+      guessing/reusing IDs, cross-session data access is possible.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: body.get("session_id", ...)
+      - pattern: body.get("session_id")
+      - pattern: body["session_id"]
+      - pattern: body.get("job_id", ...)
+      - pattern: body.get("job_id")
+    pattern-sinks:
+      - pattern: table.get_item(...)
+      - pattern: _load_session(...)
+    metadata:
+      cwe: CWE-639
+      category: cross-session-access
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 2: DynamoDB scan() — reads ALL items
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: dynamodb-scan-multi-tenant
+    severity: WARNING
+    message: >
+      DynamoDB scan() reads ALL items in the table regardless of partition.
+      In a multi-tenant shared table, scan exposes all tenants' data to
+      the calling Lambda. Use query() with tenant-scoped KeyConditionExpression.
+    languages: [python]
+    patterns:
+      - pattern: $TABLE.scan(...)
+    metadata:
+      cwe: CWE-200
+      category: data-exposure
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 3: Generated code sent to execution service
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: generated-code-to-execution
+    severity: WARNING
+    message: >
+      LLM-generated code sent to code execution service. If user messages
+      influence the generated code (via prompt injection), attacker-controlled
+      code may execute. Verify generated code is sandboxed and cannot access
+      credentials or sensitive data.
+    languages: [python]
+    mode: taint
+    pattern-sources:
+      - pattern: state.get("generated_code")
+      - pattern: state["generated_code"]
+    pattern-sinks:
+      - pattern: $CLIENT.invoke_code_interpreter(...)
+      - pattern: runtime.invoke_code_interpreter(...)
+      - pattern: exec(...)
+      - pattern: eval(...)
+    metadata:
+      cwe: CWE-94
+      category: code-execution
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 4: LangGraph routing without permission check
+  # This detects the pattern: router determines intent from user
+  # message and routes to tool nodes without RBAC verification
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: langgraph-routing-from-state
+    severity: WARNING
+    message: >
+      LangGraph routing function determines next node from state (which
+      includes user messages). If intent classification is LLM-driven,
+      prompt injection may influence routing to unauthorized nodes.
+      Verify check_permission() is called before tool-executing nodes.
+    languages: [python]
+    patterns:
+      - pattern: |
+          def $FUNC(state: ...):
+              ...
+              $INTENT = state.get("intent")
+              ...
+              return $NEXT
+    metadata:
+      cwe: CWE-285
+      category: routing-without-auth
+      confidence: LOW
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 5: Error details in response (traceback/str(e))
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: error-details-in-response
+    severity: WARNING
+    message: >
+      Exception string included in HTTP response body.
+      May expose internal paths or sensitive state.
+    languages: [python]
+    patterns:
+      - pattern: |
+          return _json_response($CODE, {"error": str($E)})
+    metadata:
+      cwe: CWE-209
+      category: info-disclosure
+      confidence: MEDIUM
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 6: Traceback printed to logs
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: traceback-in-handler
+    severity: INFO
+    message: >
+      traceback.print_exc() in Lambda handler. Full stack traces in
+      CloudWatch may reveal internal code structure and paths.
+    languages: [python]
+    patterns:
+      - pattern: traceback.print_exc()
+    metadata:
+      cwe: CWE-209
+      category: info-disclosure
+      confidence: LOW
+
+  # ═══════════════════════════════════════════════════════════════
+  # GAP 7: No permission check in graph — check if graph nodes
+  # that handle evaluation/evidence call check_permission
+  # ═══════════════════════════════════════════════════════════════
+
+  - id: evaluation-without-permission-check
+    severity: WARNING
+    message: >
+      Evaluation or storage function processes state without calling
+      check_permission(). If the router dispatches here based on
+      user intent (LLM-classified), RBAC may be bypassed.
+    languages: [python]
+    patterns:
+      - pattern: |
+          def $FUNC(state: AgentState) -> ...:
+              ...
+              $CODE = state.get("generated_code")
+              ...
+    pattern-not-inside: |
+      ...
+      check_permission(...)
+      ...
+    metadata:
+      cwe: CWE-285
+      category: missing-authorization
+      confidence: LOW
