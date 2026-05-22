@@ -96,9 +96,18 @@ def _build_html(data: dict, title: str) -> str:
     </div>
 </div>
 
-<!-- Executive Summary -->
-<div class="page-break"></div>
-<h2>Executive Summary</h2>
+<!-- Navigation -->
+<nav class="toc">
+    <h3>Contents</h3>
+    <ul>
+        <li><a href="#executive-summary">Executive Summary</a></li>
+        <li><a href="#zero-trust">Zero Trust Assessment</a></li>
+        <li><a href="#findings">Findings ({total})</a></li>
+        <li><a href="#attack-chains">Attack Chains</a></li>
+    </ul>
+</nav>
+
+<h2 id="executive-summary">Executive Summary</h2>
 <p>This security analysis identified <strong>{total} findings</strong>:
 {critical} critical, {high} high, {medium} medium, {low} low severity issues.</p>
 
@@ -127,13 +136,11 @@ def _build_html(data: dict, title: str) -> str:
 {zt_html}
 
 <!-- Findings -->
-<div class="page-break"></div>
-<h2>Detailed Findings</h2>
+<h2 id="findings">Detailed Findings</h2>
 {findings_html}
 
 <!-- Attack Chains -->
-<div class="page-break"></div>
-<h2>Attack Chains</h2>
+<h2 id="attack-chains">Attack Chains</h2>
 {chains_html}
 
 <!-- Footer -->
@@ -157,9 +164,10 @@ def _render_findings(findings: list[dict]) -> str:
         fix = f.get("suggested_fix", "")
         locations = f.get("code_locations", [])
 
+        finding_id = f"finding-{i}"
         html_parts.append(f"""
-<div class="finding">
-    <h3>Finding {i}: {f.get('title', 'Untitled')}</h3>
+<div class="finding" id="{finding_id}">
+    <h3><a href="#{finding_id}">Finding {i}</a>: {f.get('title', 'Untitled')}</h3>
     <div class="finding-meta">
         <span class="severity-badge {sev_class}">{severity}</span>
         <span class="meta-item">Confidence: {f.get('confidence', 'HIGH')}</span>
@@ -170,7 +178,7 @@ def _render_findings(findings: list[dict]) -> str:
     <h4>Description</h4>
     <p>{f.get('description', '')}</p>
 
-    {'<h4>Evidence Walk</h4><pre class="evidence">' + evidence + '</pre>' if evidence else ''}
+    {'<details open><summary><strong>Evidence Walk</strong></summary><pre class="evidence">' + evidence + '</pre></details>' if evidence else ''}
 
     {'<h4>Verified</h4><ul>' + ''.join(f'<li>{v}</li>' for v in verified) + '</ul>' if verified else ''}
 
@@ -234,8 +242,7 @@ def _render_zero_trust(zt: dict) -> str:
             </tr>"""
 
     return f"""
-<div class="page-break"></div>
-<h2>Zero Trust Assessment</h2>
+<h2 id="zero-trust">Zero Trust Assessment</h2>
 <div class="zt-posture">
     <span class="severity-badge {posture_class}">Posture: {posture}</span>
     <p>Uncontained resources: {uncontained} / {total}</p>
@@ -343,4 +350,25 @@ hr { border: none; border-top: 1px solid #e8e8e8; margin: 32px 0; }
 code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 9pt; }
 ul { padding-left: 20px; }
 li { margin: 4px 0; }
+a { color: #1565c0; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+nav.toc { background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 6px;
+           padding: 16px 24px; margin: 24px 0; }
+nav.toc h3 { margin: 0 0 8px; font-size: 12pt; }
+nav.toc ul { list-style: none; padding: 0; }
+nav.toc li { margin: 4px 0; }
+nav.toc a { font-size: 11pt; }
+
+details { margin: 8px 0; }
+details summary { cursor: pointer; font-size: 10pt; color: #333; }
+details summary:hover { color: #1565c0; }
+
+.finding h3 a { color: inherit; }
+.finding h3 a:hover { color: #1565c0; }
+
+@media print {
+    .toc { page-break-after: always; }
+    .finding { page-break-inside: avoid; }
+}
 """
