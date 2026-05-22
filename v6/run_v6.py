@@ -31,6 +31,7 @@ from v6.layer0.code_analyzer import run_code_analysis
 from v6.layer0.infra_analyzer import run_infra_analysis
 from v6.layer0.chain_synthesizer import ChainSynthesizer
 from v6.evidence_package import EvidencePackage
+from v6.report.pdf_generator import generate_pdf_report
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,12 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
     output_dir = Path(__file__).parent / "reports" / repo_name
     package.save(output_dir)
 
+    # Generate PDF report
+    pdf_data = _build_pdf_data(package, attack_chains)
+    pdf_path = str(output_dir / "security-report.pdf")
+    generate_pdf_report(pdf_data, pdf_path, title=f"Security Analysis Report — {repo_name}")
+    print(f"  ║  Report: {pdf_path}")
+
     if max_layer >= 1:
         # ════════════════════════════════════════════════════════════════
         # LAYER 1: LLM DISCOVERY (3 parallel tracks)
@@ -165,6 +172,120 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
     print("═" * 70)
 
     return package
+
+
+def _build_pdf_data(package: EvidencePackage, attack_chains) -> dict:
+    """Build the data structure needed for PDF generation."""
+    findings = []
+    seen_titles = set()
+
+    # Semgrep findings with evidence walks
+    for finding_dict, walk in package.evidence_walks:
+        if finding_dict["title"] in seen_titles:
+            continue
+        seen_titles.add(finding_dict["title"])
+        findings.append({
+            "title": finding_dict.get("title", ""),
+            "severity": finding_dict.get("severity", "MEDIUM"),
+            "confidence": "HIGH",
+            "risk_type": finding_dict.get("category", ""),
+            "cwe": finding_dict.get("cwe", ""),
+            "description": f"Vulnerability at {Path(finding_dict.get('file_path','')).name}:{finding_dict.get('line', 0)}",
+            "evidence": walk.render() if walk else "",
+            "code_locations": [f"{finding_dict.get('file_path','')}:{finding_dict.get('line', 0)}"],
+        })
+
+    # Absence findings
+    for af in package.absence_findings:
+        findings.append({
+            "title": af.title, "severity": af.severity, "confidence": "HIGH",
+            "risk_type": af.category, "cwe": af.cwe, "description": af.description,
+            "evidence": af.evidence,
+            "code_locations": [f"{af.file_path}:{af.line}"],
+            "verified": [af.evidence],
+            "could_not_verify": ["Whether compensating controls exist at infrastructure level"],
+        })
+
+    # Differential findings
+    for df in package.differential_findings:
+        findings.append({
+            "title": df.title, "severity": df.severity, "confidence": "HIGH",
+            "risk_type": df.category, "cwe": df.cwe, "description": df.description,
+            "verified": [f"Missing guards: {df.missing_guards}"],
+            "code_locations": [f"{df.weaker_path.entry_file}:{df.weaker_path.sink_line}"],
+        })
+
+    # Z3 findings (deduplicated)
+    for zf in package.z3_findings:
+        if zf["title"] in seen_titles:
+            continue
+        seen_titles.add(zf["title"])
+        findings.append({
+            "title": zf.get("title", ""), "severity": zf.get("severity", "HIGH"),
+            "confidence": "HIGH", "risk_type": zf.get("category", ""),
+            "cwe": zf.get("cwe", ""), "description": zf.get("description", ""),
+            "evidence": zf.get("evidence", ""),
+            "verified": [zf.get("z3_proof", "Formally proven via Z3 SMT solver")],
+            "code_locations": [zf.get("file_path", "infra/")],
+        })
+
+    # Synthetic findings
+    for sf in package.synthetic_findings:
+        if sf["title"] in seen_titles:
+            continue
+        seen_titles.add(sf["title"])
+        findings.append({
+            "title": sf.get("title", ""), "severity": sf.get("severity", "MEDIUM"),
+            "confidence": "HIGH", "risk_type": sf.get("category", ""),
+            "description": sf.get("title", ""),
+            "code_locations": [sf.get("file_path", "")],
+        })
+
+    # Sort by severity
+    sev_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
+    findings.sort(key=lambda f: sev_order.get(f.get("severity", ""), 4))
+
+    sev_dist = {}
+    for f in findings:
+        s = f.get("severity", "MEDIUM")
+        sev_dist[s] = sev_dist.get(s, 0) + 1
+
+    zt_data = {}
+    if package.zero_trust:
+        zt_data = {
+            "posture": package.zero_trust.overall_posture,
+            "summary": package.zero_trust.summary,
+            "blast_radii": {
+                rid: {"role": br.iam_role, "status": br.containment_status,
+                      "internet_facing": br.is_internet_facing, "auth": br.auth_mechanism,
+                      "capabilities": {"all_tenants": br.can_access_all_tenants,
+                                       "exfiltrate": br.can_exfiltrate_data,
+                                       "modify": br.can_modify_data}}
+                for rid, br in package.zero_trust.blast_radii.items()
+            },
+            "lateral_paths": [{"source": lp.source, "target": lp.target, "mechanism": lp.mechanism}
+                             for lp in package.zero_trust.lateral_paths[:20]],
+        }
+
+    chains_data = [
+        {"title": c.title, "composite_severity": c.composite_severity,
+         "steps": [{"title": s.title, "severity": s.severity} for s in c.steps],
+         "narrative": c.narrative}
+        for c in attack_chains
+    ]
+
+    return {
+        "summary": {
+            "repo": package.repo_path, "total_findings": len(findings),
+            "severity_distribution": sev_dist, "z3_findings": len(package.z3_findings),
+            "zero_trust_uncontained": package.zero_trust.summary.get("uncontained", 0) if package.zero_trust else 0,
+            "lateral_paths": len(package.zero_trust.lateral_paths) if package.zero_trust else 0,
+            "attack_chains": len(chains_data),
+        },
+        "findings": findings,
+        "attack_chains": chains_data,
+        "zero_trust": zt_data,
+    }
 
 
 def _run_layer1(package: EvidencePackage, output_dir: Path, use_api: bool):
