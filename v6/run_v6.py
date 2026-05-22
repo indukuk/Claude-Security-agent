@@ -109,8 +109,9 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
         len(infra_result.synthetic_findings)
     )
 
-    # Save Layer 0 outputs
-    output_dir = repo / ".security-agent" / "v6-state"
+    # Save Layer 0 outputs to scanner's own reports directory (not in target repo)
+    repo_name = repo.name
+    output_dir = Path(__file__).parent / "reports" / repo_name
     package.save(output_dir)
 
     if max_layer >= 1:
@@ -120,7 +121,7 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
         print()
         print("  ╔══ LAYER 1: LLM Discovery (3 parallel tracks) ══╗")
         _run_layer1(package, output_dir, use_api)
-        print("  ╚═══════════════════════════════════════════════════╝")
+        print("  ╚═══════════════════════════════════════════════════════╝")
 
     if max_layer >= 2:
         print()

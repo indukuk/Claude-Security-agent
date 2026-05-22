@@ -55,18 +55,20 @@ This runs all 7 layers autonomously (~15min, ~$15-20 in LLM costs).
 
 ## Output Location
 
-All outputs go to `<target-repo>/.security-agent/v6-state/`:
+All outputs go to `~/security-agent/v6/reports/<repo-name>/` (NOT in the target repo):
 ```
-v6-state/
+~/security-agent/v6/reports/<repo-name>/
 ├── summary.json                    # Layer 0 metrics
 ├── evidence_for_llm.md             # Full evidence package (for LLM input)
 ├── known_findings.json             # Exclusion list for Layer 1
-├── layer1_prompts/                 # Investigation prompts
-│   ├── track_a_novel_patterns.md   # Paste into Claude for novel findings
-│   ├── track_b_zero_day.md         # Paste into Claude for zero-day hunting
-│   └── track_c_investigation.md    # Paste for domain expert analysis
-└── zero_trust_assessment.json      # Blast radius + lateral movement
+└── layer1_prompts/                 # Investigation prompts
+    ├── track_a_novel_patterns.md   # Paste into Claude for novel findings
+    ├── track_b_zero_day.md         # Paste into Claude for zero-day hunting
+    └── track_c_investigation.md    # Paste for domain expert analysis
 ```
+
+Reports are stored in the scanner's own directory — nothing is written to the target repo.
+The `reports/` directory is .gitignored so findings never get committed.
 
 ## Supported Target Repos
 
