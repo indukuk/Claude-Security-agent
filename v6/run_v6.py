@@ -1,19 +1,18 @@
 """
 V6 Security Agent — Hybrid Zero-Day Discovery Pipeline.
 
-Layer 0: Deterministic foundation (parallel: code ‖ infra+ZT ‖ frontend)
-Layer 1: LLM discovery (parallel: novel patterns ‖ zero-day ‖ investigation)
-Layer 2: CoT synthesis (parallel per finding)
-Layer 3: Validation (parallel: debate ‖ ZT cross-ref ‖ zero-day validation)
-Layer 4: Proof (parallel: exploit ‖ fix+verify ‖ regression tests)
-Layer 5: Narrative synthesis (sequential)
-Layer 6: Learning feedback loop (sequential)
+Two modes:
+  python3 v6/run_v6.py /path/to/repo          # Deterministic only (free, 18s)
+  python3 v6/run_v6.py /path/to/repo --full   # + Claude in-session investigation
 
-Usage:
-  python3 v6/run_v6.py /path/to/repo                    # Layer 0 only (free, 26s)
-  python3 v6/run_v6.py /path/to/repo --layer 1          # + LLM discovery
-  python3 v6/run_v6.py /path/to/repo --full             # All layers (~$15-20, ~15min)
-  python3 v6/run_v6.py /path/to/repo --full --api       # With Bedrock API calls
+Mode 1 (no --full): Runs CPG + semgrep + Z3 + zero trust + chains.
+  Produces HTML report with 50+ findings. No LLM needed.
+
+Mode 2 (--full): Runs Layer 0 THEN outputs the investigation prompt
+  for Claude to process in the current session. Claude performs zero-day
+  discovery, finds novel AI/LLM attack vectors, and reports findings.
+
+  Report: ~/security-agent/v6/reports/<repo>/security-report.html
 """
 from __future__ import annotations
 
@@ -45,8 +44,8 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
     print("  V6 Security Agent — Hybrid Zero-Day Discovery Pipeline")
     print("═" * 70)
     print(f"  Target: {repo_path}")
-    print(f"  Mode: {'API (Bedrock)' if use_api else 'In-session / Layer 0 only'}")
-    print(f"  Layers: 0{' → ' + str(max_layer) if max_layer > 0 else ' (deterministic only)'}")
+    print(f"  Mode: {'Full (deterministic + Claude investigation)' if use_api else 'Deterministic only'}")
+    print(f"  Layers: {'0 + 1 (Claude in-session)' if use_api else '0 (deterministic)'}")
     print()
 
     # ════════════════════════════════════════════════════════════════════
@@ -115,19 +114,23 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
     output_dir = Path(__file__).parent / "reports" / repo_name
     package.save(output_dir)
 
-    # Generate PDF report
+    # Generate HTML report
     pdf_data = _build_pdf_data(package, attack_chains)
-    pdf_path = str(output_dir / "security-report.pdf")
-    generate_pdf_report(pdf_data, pdf_path, title=f"Security Analysis Report — {repo_name}")
-    print(f"  ║  Report: {pdf_path}")
+    report_path = str(output_dir / "security-report.pdf")
+    result_path = generate_pdf_report(pdf_data, report_path, title=f"Security Analysis Report — {repo_name}")
 
     if max_layer >= 1:
         # ════════════════════════════════════════════════════════════════
-        # LAYER 1: LLM DISCOVERY (3 parallel tracks)
+        # LAYER 1: LLM DISCOVERY (Claude in this session)
         # ════════════════════════════════════════════════════════════════
         print()
-        print("  ╔══ LAYER 1: LLM Discovery (3 parallel tracks) ══╗")
-        _run_layer1(package, output_dir, use_api)
+        print("  ╔══ LAYER 1: Deep Analysis (Claude in-session) ══╗")
+        if use_api:
+            # --full mode: output the investigation prompt for Claude to execute
+            _run_layer1_insession(package, output_dir)
+        else:
+            # --layer 1 without --full: just save prompts to files
+            _run_layer1(package, output_dir, False)
         print("  ╚═══════════════════════════════════════════════════════╝")
 
     if max_layer >= 2:
@@ -161,14 +164,27 @@ def run_v6(repo_path: str, max_layer: int = 0, use_api: bool = False) -> Evidenc
         print("  ╚══════════════════════════════════════╝")
 
     elapsed = time.time() - start_time
+    report_file = output_dir / "security-report.html"
 
     print()
     print("═" * 70)
-    print("  V6 PIPELINE COMPLETE")
+    print("  SCAN COMPLETE")
     print("═" * 70)
-    print(f"  {json.dumps(package.summary(), indent=4)}")
+    print()
+    print(f"  Findings: {package.total_findings_layer0}")
+    sev = package.summary()
+    print(f"    Critical: {len([f for f in package.z3_findings if f.get('severity') == 'CRITICAL'])}")
+    print(f"    High:     {len([f for f in package.semgrep_findings if f.get('severity') in ('HIGH','CRITICAL')]) + len(package.absence_findings) + len(package.differential_findings)}")
+    print(f"    Medium:   {len(package.synthetic_findings)}")
+    print(f"  Zero Trust: {sev.get('zero_trust_uncontained', 0)} uncontained resources")
+    print(f"  Attack Chains: {len(attack_chains)} ({sum(1 for c in attack_chains if c.composite_severity == 'CRITICAL')} critical)")
     print(f"  Duration: {elapsed:.1f}s")
-    print(f"  Outputs: {output_dir}")
+    print()
+    print(f"  ╔══════════════════════════════════════════════════╗")
+    print(f"  ║  Here is your report:                            ║")
+    print(f"  ║  {report_file}")
+    print(f"  ╚══════════════════════════════════════════════════╝")
+    print()
     print("═" * 70)
 
     return package
@@ -286,6 +302,52 @@ def _build_pdf_data(package: EvidencePackage, attack_chains) -> dict:
         "attack_chains": chains_data,
         "zero_trust": zt_data,
     }
+
+
+def _run_layer1_insession(package: EvidencePackage, output_dir: Path):
+    """Output the investigation prompt for Claude to execute in this session."""
+    from v6.layer1.track_b.zero_day_agent import ZeroDayAgent
+
+    evidence_text = package.render_for_llm(max_chars=150000)
+    known = package.get_known_finding_titles()
+
+    agent = ZeroDayAgent()
+    prompt = agent.build_prompt(evidence_text, known)
+    system = agent.get_system()
+
+    # Save the full prompt for reference
+    prompt_file = output_dir / "layer1_insession_prompt.md"
+    prompt_file.write_text(f"{system}\n\n---\n\n{prompt}")
+
+    print("  ║")
+    print("  ║  Claude: Executing zero-day discovery on the evidence package...")
+    print("  ║  (Reading source code, analyzing for novel vulnerabilities)")
+    print("  ║")
+
+    # Output the investigation instruction to stdout
+    # Claude Code will process this as part of the session
+    print("\n" + "═" * 70)
+    print("LAYER 1 INVESTIGATION — EXECUTE NOW")
+    print("═" * 70)
+    print()
+    print(system)
+    print()
+    print("---")
+    print()
+    # Truncate evidence for terminal output but full version is in file
+    print(prompt[:50000])
+    if len(prompt) > 50000:
+        print(f"\n... (full prompt: {len(prompt)} chars — see {prompt_file})")
+    print()
+    print("═" * 70)
+    print("END OF INVESTIGATION PROMPT")
+    print("═" * 70)
+    print()
+    print(f"  ║  Full prompt saved: {prompt_file}")
+    print(f"  ║  Evidence: {len(evidence_text):,} chars | Known exclusions: {len(known)}")
+    print(f"  ║")
+    print(f"  ║  To complete: Claude reads the above and reports novel findings.")
+    print(f"  ║  Findings will be appended to the HTML report on next run.")
 
 
 def _run_layer1(package: EvidencePackage, output_dir: Path, use_api: bool):
@@ -479,14 +541,15 @@ def main():
     parser = argparse.ArgumentParser(description="V6 Hybrid Security Scanner")
     parser.add_argument("repo", nargs="?", default="/Users/indukuk/compliance")
     parser.add_argument("--layer", type=int, default=0, help="Run up to layer N")
-    parser.add_argument("--full", action="store_true", help="Run all layers")
-    parser.add_argument("--api", action="store_true", help="Use Bedrock API")
+    parser.add_argument("--full", action="store_true",
+                       help="Full analysis: Layer 0 + Claude in-session investigation")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.WARNING, format="%(asctime)s [%(levelname)s] %(message)s")
 
-    max_layer = 6 if args.full else args.layer
-    run_v6(args.repo, max_layer=max_layer, use_api=args.api)
+    max_layer = 1 if args.full else args.layer
+    use_api = args.full  # --full means Claude processes the prompt in-session
+    run_v6(args.repo, max_layer=max_layer, use_api=use_api)
 
 
 if __name__ == "__main__":

@@ -42,18 +42,7 @@ def generate_pdf_report(
     # Save HTML report (always works, no system deps)
     html_path = output_path.replace(".pdf", ".html")
     Path(html_path).write_text(html)
-
-    # Try PDF generation via weasyprint (requires system libs: pango, gobject)
-    try:
-        from weasyprint import HTML
-        HTML(string=html).write_pdf(output_path)
-        logger.info(f"PDF report generated: {output_path}")
-        return output_path
-    except (ImportError, OSError):
-        # WeasyPrint not available or missing system libs — HTML is the output
-        logger.info(f"HTML report generated: {html_path}")
-        logger.info("  (For PDF: brew install pango gobject-introspection, then pip install weasyprint)")
-        return html_path
+    return html_path
 
 
 def _build_html(data: dict, title: str) -> str:
